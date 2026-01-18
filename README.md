@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Design Lab
 
-## Getting Started
+A design lab environment for building and testing interaction demos with GSAP and Framer Motion.
 
-First, run the development server:
+## Quick Start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the demo gallery.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Creating a New Demo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a new folder in `app/demos/[your-demo-name]/`
+2. Add a `page.tsx` file
+3. Build your interaction
+4. Add it to the demo list in `app/page.tsx`
 
-## Learn More
+### Example Demo Structure
 
-To learn more about Next.js, take a look at the following resources:
+```tsx
+"use client";
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+import { motion } from "framer-motion";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+export default function YourDemo() {
+  // Your demo code here
+  return <div>Your interactive demo</div>;
+}
+```
 
-## Deploy on Vercel
+## Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Next.js 15** - App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS v4** - Styling
+- **GSAP** - Advanced animations and timelines
+- **Framer Motion** - React-native animations and gestures
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Libraries Available
+
+### GSAP
+
+```tsx
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+
+useGSAP(() => {
+  gsap.to(".box", { x: 100, duration: 1 });
+}, []);
+```
+
+### Framer Motion
+
+```tsx
+import { motion } from "framer-motion";
+
+<motion.div
+  whileHover={{ scale: 1.1 }}
+  transition={{ type: "spring" }}
+/>
+```
+
+## Custom Utilities
+
+### Easing Curves
+
+Pre-configured easing curves in `globals.css`:
+
+- `--ease-spring`: `cubic-bezier(0.16, 1, 0.3, 1)`
+- `--ease-smooth`: `cubic-bezier(0.4, 0, 0.2, 1)`
+
+### Utils
+
+`lib/utils.ts` includes a `cn()` utility for conditional classnames.
+
+## Project Structure
+
+```
+design-lab/
+├── app/
+│   ├── page.tsx              # Demo gallery
+│   ├── layout.tsx            # Root layout
+│   ├── globals.css           # Global styles
+│   └── demos/
+│       └── example/
+│           └── page.tsx      # Individual demo
+├── lib/
+│   ├── utils.ts              # Utilities
+│   └── hooks/                # Custom hooks
+└── README.md
+```
+
+## Tips
+
+- Keep demos self-contained in their own folders
+- Use `"use client"` directive for interactive components
+- Dark mode is enabled by default
+- All demos are automatically shareable via URL
+
+## Deployment
+
+Deploy to Vercel with one click:
+
+```bash
+vercel
+```
+
+Or connect your GitHub repo to Vercel for automatic deployments.
+
+## Adding Demos to Portfolio
+
+Embed demos in your portfolio using iframes:
+
+```tsx
+<iframe
+  src="https://your-lab.vercel.app/demos/demo-name"
+  className="w-full h-[600px]"
+/>
+```
+
+Or link directly to the demo URL for sharing on Twitter.
