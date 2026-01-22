@@ -14,7 +14,8 @@ export default function AdaptiveKnob() {
   const audioContextRef = useRef<AudioContext | null>(null)
   const waveNames = ['sine', 'triangle', 'saw', 'square']
   const snapPoints = [-135, -45, 45, 135]
-  const [snapPoint, atSnapPoint] = useState(false)
+  const [glowIntensity, setGlowIntensity] = useState(0)
+  const glowTweenRef = useRef({ value: 0 })
 
   const playClick = () => {
     if (!audioContextRef.current) {
@@ -173,7 +174,13 @@ export default function AdaptiveKnob() {
     if(snappedTo.current !== null) {
       if (Math.abs(clamped - snappedTo.current) > exitThreshold) {
         snappedTo.current = null
-        atSnapPoint(false)
+        // Fade out glow
+        gsap.to(glowTweenRef.current, {
+          value: 0,
+          duration: 0.15,
+          ease: 'power2.out',
+          onUpdate: () => setGlowIntensity(glowTweenRef.current.value)
+        })
         finalAngle = clamped
       } else {
         finalAngle = snappedTo.current
@@ -185,7 +192,6 @@ export default function AdaptiveKnob() {
         if(Math.abs(clamped - snap) < enterThreshold) {
           snappedTo.current = snap
           finalAngle = snap
-          atSnapPoint(true)
           playClick()
           // Smooth snap animation
           gsap.to(tweenRef.current, {
@@ -193,6 +199,13 @@ export default function AdaptiveKnob() {
             duration: 0.15,
             ease: 'power2.out',
             onUpdate: () => setAngle(tweenRef.current.value)
+          })
+          // Fade in glow
+          gsap.to(glowTweenRef.current, {
+            value: 1,
+            duration: 0.15,
+            ease: 'power2.out',
+            onUpdate: () => setGlowIntensity(glowTweenRef.current.value)
           })
           break
         }
@@ -232,26 +245,65 @@ export default function AdaptiveKnob() {
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-transparent">
       <svg width="200" height="120" viewBox="0 0 200 60">
-  <path
-    d={getWaveformPath()}
-    fill="none"
-    stroke={snapPoint ? "green" : "white"}
+        <defs>
+          <filter id="ledGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation={4 * glowIntensity} result="blur1"/>
+            <feGaussianBlur stdDeviation={8 * glowIntensity} result="blur2"/>
+            <feMerge>
+              <feMergeNode in="blur2"/>
+              <feMergeNode in="blur1"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <path
+          d={getWaveformPath()}
+          fill="none"
+          stroke={`rgb(${Math.round(150 - 150 * glowIntensity)}, ${Math.round(150 + 105 * glowIntensity)}, ${Math.round(150 - 48 * glowIntensity)})`}
+          strokeWidth={2 + 0.5 * glowIntensity}
+          transform="translate(0, 30)"
+          filter={glowIntensity > 0 ? "url(#ledGlow)" : "none"}
+        />
+      </svg>
 
-    strokeWidth="2"
-    transform="translate(0, 30)"
-  />
-</svg>
+      {/* Knob with tick marks */}
+      <div className="relative" style={{ width: "220px", height: "220px" }}>
+        {/* Tick mark labels */}
+        {['SIN', 'TRI', 'SAW', 'SQR'].map((label, i) => {
+          const tickAngle = snapPoints[i]
+          const radians = (tickAngle - 90) * (Math.PI / 180)
+          const radius = 100
+          const x = Math.cos(radians) * radius + 110
+          const y = Math.sin(radians) * radius + 110
+          const isActive = snappedTo.current === snapPoints[i] && glowIntensity > 0.5
+          return (
+            <span
+              key={label}
+              className="absolute text-[10px] font-medium tracking-wider"
+              style={{
+                left: `${x}px`,
+                top: `${y}px`,
+                transform: 'translate(-50%, -50%)',
+                color: isActive ? `rgba(0, 255, 102, ${glowIntensity})` : 'rgba(150, 150, 150, 0.6)',
+                textShadow: isActive ? `0 0 8px rgba(0, 255, 102, ${glowIntensity * 0.5})` : 'none',
+                transition: 'color 0.15s ease-out, text-shadow 0.15s ease-out'
+              }}
+            >
+              {label}
+            </span>
+          )
+        })}
 
-      {/* Base plate */}
-      <div
-        className="relative flex items-center justify-center rounded-full"
-        style={{
-          width: "160px",
-          height: "160px",
-          background: "linear-gradient(145deg, #2a2a2a, #1a1a1a)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05)"
-        }}
-      >
+        {/* Base plate */}
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full"
+          style={{
+            width: "160px",
+            height: "160px",
+            background: "linear-gradient(145deg, #2a2a2a, #1a1a1a)",
+            boxShadow: `0 8px 32px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05), inset 0 4px 8px -6px rgba(0,255,102,${0.5 * glowIntensity}), inset 0 1px 2px -1px rgba(255,255,255,${0.6 * glowIntensity})`
+          }}
+        >
         {/* Knob container */}
         <div
           ref={knobRef}
@@ -351,6 +403,7 @@ export default function AdaptiveKnob() {
           />
         </div>
 
+        </div>
       </div>
     </div>
   );
