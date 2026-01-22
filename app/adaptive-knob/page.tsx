@@ -10,6 +10,47 @@ export default function AdaptiveKnob() {
   const prevAngle = useRef<number>(0)
   const startAngle = useRef<number>(0)
   const tweenRef = useRef({ value: 0})
+  const snappedTo = useRef<number | null>(null)
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const waveNames = ['sine', 'triangle', 'saw', 'square']
+  const snapPoints = [-135, -45, 45, 135]
+  const [snapPoint, atSnapPoint] = useState(false)
+
+  const playClick = () => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext()
+    }
+    const ctx = audioContextRef.current
+
+    // Create a short noise burst for mechanical click
+    const bufferSize = ctx.sampleRate * 0.015 // 15ms
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+    const data = buffer.getChannelData(0)
+
+    for (let i = 0; i < bufferSize; i++) {
+      // Noise with fast decay
+      const decay = 1 - (i / bufferSize)
+      data[i] = (Math.random() * 2 - 1) * decay * decay
+    }
+
+    const noise = ctx.createBufferSource()
+    noise.buffer = buffer
+
+    // High-pass filter to make it more clicky
+    const filter = ctx.createBiquadFilter()
+    filter.type = 'highpass'
+    filter.frequency.value = 1200
+
+    const gain = ctx.createGain()
+    gain.gain.value = 0.4
+
+    noise.connect(filter)
+    filter.connect(gain)
+    gain.connect(ctx.destination)
+
+    noise.start(ctx.currentTime)
+  }
+
 
   const generateWaveformPoints = (type, width, height, points) => {
 
@@ -56,15 +97,18 @@ export default function AdaptiveKnob() {
 }
 
   const getWaveformPath = () => {
-    const waveNames = ['sine', 'triangle', 'saw', 'square']
-    const snapPoints = [-135, -45, 45, 135]
     let segmentIndex = 0;
 
     for(let i = 0; i < snapPoints.length - 1; i++) {
         if(angle >= snapPoints[i] && angle < snapPoints[i + 1]) {
           segmentIndex = i;
         break;
-    } 
+    }
+  }
+
+  // Handle edge case when angle equals max (135)
+  if (angle >= snapPoints[snapPoints.length - 1]) {
+    segmentIndex = snapPoints.length - 2;
   }
 
   let progress = (angle - snapPoints[segmentIndex]) / (snapPoints[segmentIndex + 1] - snapPoints[segmentIndex])
@@ -82,24 +126,6 @@ export default function AdaptiveKnob() {
   return pointsToPath(blendedPoints)
 }
 
-  const getStrokeColor = () => {
-    const snapPoints = [-135, -45, 45, 135]
-    const threshold = 3
-
-    for (const snap of snapPoints) {
-      if (Math.abs(angle - snap) <= threshold) {
-        return '#00a8ff'
-      }
-    }
-    return 'white'
-  }
-
-  const isAtSnapPoint = () => {
-    const snapPoints = [-135, -45, 45, 135]
-    const threshold = 3
-    return snapPoints.some(snap => Math.abs(angle - snap) <= threshold)
-  }
-  
 
   const handleMouseDown = (e:React.MouseEvent) => {
     isDraggingRef.current = true
@@ -119,7 +145,6 @@ export default function AdaptiveKnob() {
 
     }
 
-
   }
 
   const handleMouseMove = (e:MouseEvent) => {
@@ -132,27 +157,55 @@ export default function AdaptiveKnob() {
 
     let radians = Math.atan2(e.clientY - centerY, e.clientX - centerX)
     let degrees = radians * (180 / Math.PI)
-
     let delta = degrees - startAngle.current
     if (Math.abs(delta) > 180) return
 
     let newAngle = prevAngle.current + delta
-
     let MIN = -135
     let MAX = 135
     let clamped = Math.max(MIN, Math.min(MAX, newAngle))
-     
- 
+
+    let finalAngle = clamped
+    let exitThreshold = 8
+    const enterThreshold = 5
+
+
+    if(snappedTo.current !== null) {
+      if (Math.abs(clamped - snappedTo.current) > exitThreshold) {
+        snappedTo.current = null
+        atSnapPoint(false)
+        finalAngle = clamped
+      } else {
+        finalAngle = snappedTo.current
+      }
+    } else {
+      
+
+      for(const snap of snapPoints) {
+        if(Math.abs(clamped - snap) < enterThreshold) {
+          snappedTo.current = snap
+          finalAngle = snap
+          atSnapPoint(true)
+          playClick()
+          // Smooth snap animation
+          gsap.to(tweenRef.current, {
+            value: snap,
+            duration: 0.15,
+            ease: 'power2.out',
+            onUpdate: () => setAngle(tweenRef.current.value)
+          })
+          break
+        }
+      }
+    }
+
 
     gsap.to(tweenRef.current, {
-    value: clamped,
-    duration: 0.25,
-    ease: 'power2.out',
-    onUpdate: () => setAngle(tweenRef.current.value)
-
-     })
-
-
+      value: finalAngle,
+      duration: 0.1,
+      ease: 'power3.out',
+      onUpdate: () => setAngle(tweenRef.current.value)
+    })
 
     startAngle.current = degrees
     prevAngle.current = clamped
@@ -182,13 +235,10 @@ export default function AdaptiveKnob() {
   <path
     d={getWaveformPath()}
     fill="none"
-    stroke={getStrokeColor()}
+    stroke={snapPoint ? "green" : "white"}
+
     strokeWidth="2"
     transform="translate(0, 30)"
-    style={{
-      filter: isAtSnapPoint() ? 'drop-shadow(0 0 6px #00a8ff) drop-shadow(0 0 12px #00a8ff) drop-shadow(0 0 24px #00a8ff) drop-shadow(0 0 48px #0066cc)' : 'none',
-      transition: 'filter 0.15s ease'
-    }}
   />
 </svg>
 
@@ -224,9 +274,9 @@ export default function AdaptiveKnob() {
               <linearGradient id="chromeHighlight" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform={`rotate(${-angle} 0.5 0.5)`}>
                 <stop offset="0%" stopColor="#1a1a1a" />
                 <stop offset="40%" stopColor="#1a1a1a" />
-                <stop offset="60%" stopColor={isAtSnapPoint() ? "#2a4a5a" : "#4a4a4a"} />
-                <stop offset="80%" stopColor={isAtSnapPoint() ? "#4488aa" : "#888888"} />
-                <stop offset="100%" stopColor={isAtSnapPoint() ? "#66aacc" : "#aaaaaa"} />
+                <stop offset="60%" stopColor="#4a4a4a" />
+                <stop offset="80%" stopColor="#888888" />
+                <stop offset="100%" stopColor="#aaaaaa" />
               </linearGradient>
               {/* Mask for 6-lobe scalloped shape */}
               <mask id="scallopMask6">
@@ -272,32 +322,18 @@ export default function AdaptiveKnob() {
               left: "26px",
               width: "88px",
               height: "88px",
-              background: isAtSnapPoint()
-                ? `conic-gradient(
-                    from 0deg,
-                    #1a1a1a,
-                    #1a2a35,
-                    #1a1a1a,
-                    #152530,
-                    #1a1a1a,
-                    #1a2a35,
-                    #1a1a1a,
-                    #152530,
-                    #1a1a1a
-                  )`
-                : `conic-gradient(
-                    from 0deg,
-                    #1a1a1a,
-                    #2a2a2a,
-                    #1a1a1a,
-                    #252525,
-                    #1a1a1a,
-                    #2a2a2a,
-                    #1a1a1a,
-                    #252525,
-                    #1a1a1a
-                  )`,
-              transition: "background 0.15s ease",
+              background: `conic-gradient(
+                from 0deg,
+                #1a1a1a,
+                #2a2a2a,
+                #1a1a1a,
+                #252525,
+                #1a1a1a,
+                #2a2a2a,
+                #1a1a1a,
+                #252525,
+                #1a1a1a
+              )`,
               boxShadow: "inset 0 1px 2px rgba(255,255,255,0.08), inset 0 -2px 4px rgba(0,0,0,0.4)",
             }}
           />
