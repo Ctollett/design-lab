@@ -1,0 +1,321 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import gsap from "gsap";
+
+export default function AdaptiveKnob() {
+  const [angle, setAngle] = useState(0);
+  const knobRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef<boolean>(false)
+  const prevAngle = useRef<number>(0)
+  const startAngle = useRef<number>(0)
+  const tweenRef = useRef({ value: 0})
+
+  const generateWaveformPoints = (type, width, height, points) => {
+
+     const wavePoints = []
+
+    for(let i = 0; i <= points; i++) {
+  const x = (i / points) * width
+  let y
+  
+  switch(type) {
+    case 'sine':
+      y = Math.sin((i / points) * Math.PI * 2) * height
+      break
+    case 'triangle':
+  const t = i / points
+  y = t < 0.25 ? t * 4 * height :
+      t < 0.75 ? (1 - (t - 0.25) * 4) * height :
+      ((t - 1) * 4) * height
+
+
+      break
+      case 'square':
+  y = (i / points) < 0.5 ? height : -height
+  break
+     case 'saw':
+   const st = (i / points)
+  y = (st < 0.5 ? st * 2 : (st - 0.5) * 2 - 1) * height
+  break
+
+  }
+  
+  wavePoints.push({x, y})
+  
+}
+  return wavePoints;
+    
+  }
+
+
+  const pointsToPath = (points) => {
+  return points.map((p, i) => 
+    `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
+  ).join(' ')
+}
+
+  const getWaveformPath = () => {
+    const waveNames = ['sine', 'triangle', 'saw', 'square']
+    const snapPoints = [-135, -45, 45, 135]
+    let segmentIndex = 0;
+
+    for(let i = 0; i < snapPoints.length - 1; i++) {
+        if(angle >= snapPoints[i] && angle < snapPoints[i + 1]) {
+          segmentIndex = i;
+        break;
+    } 
+  }
+
+  let progress = (angle - snapPoints[segmentIndex]) / (snapPoints[segmentIndex + 1] - snapPoints[segmentIndex])
+
+  const fromPoints = generateWaveformPoints(waveNames[segmentIndex], 200, 30, 100)
+  const toPoints = generateWaveformPoints(waveNames[segmentIndex + 1], 200, 30, 100)
+
+  let blendedPoints = []
+
+  for (let i = 0; i < fromPoints.length; i++ ) {
+    let blendedY = fromPoints[i].y * (1 - progress) + toPoints[i].y * progress
+    blendedPoints.push({x: fromPoints[i].x, y: blendedY})
+    
+  }
+  return pointsToPath(blendedPoints)
+}
+
+  const getStrokeColor = () => {
+    const snapPoints = [-135, -45, 45, 135]
+    const threshold = 3
+
+    for (const snap of snapPoints) {
+      if (Math.abs(angle - snap) <= threshold) {
+        return '#00a8ff'
+      }
+    }
+    return 'white'
+  }
+
+  const isAtSnapPoint = () => {
+    const snapPoints = [-135, -45, 45, 135]
+    const threshold = 3
+    return snapPoints.some(snap => Math.abs(angle - snap) <= threshold)
+  }
+  
+
+  const handleMouseDown = (e:React.MouseEvent) => {
+    isDraggingRef.current = true
+
+    if(knobRef.current) {
+
+    let center = knobRef.current?.getBoundingClientRect()
+
+    let centerX = center.left + center.width / 2
+    let centerY = center.top + center.height / 2
+
+    let radians = Math.atan2(e.clientY - centerY, e.clientX - centerX)
+    let degrees = radians * (180 / Math.PI)
+
+    prevAngle.current = angle
+    startAngle.current = degrees
+
+    }
+
+
+  }
+
+  const handleMouseMove = (e:MouseEvent) => {
+    if (!isDraggingRef.current) return;
+    if (!knobRef.current) return;
+    let center = knobRef.current?.getBoundingClientRect()
+
+    let centerX = center.left + center.width / 2
+    let centerY = center.top + center.height / 2
+
+    let radians = Math.atan2(e.clientY - centerY, e.clientX - centerX)
+    let degrees = radians * (180 / Math.PI)
+
+    let delta = degrees - startAngle.current
+    if (Math.abs(delta) > 180) return
+
+    let newAngle = prevAngle.current + delta
+
+    let MIN = -135
+    let MAX = 135
+    let clamped = Math.max(MIN, Math.min(MAX, newAngle))
+     
+ 
+
+    gsap.to(tweenRef.current, {
+    value: clamped,
+    duration: 0.25,
+    ease: 'power2.out',
+    onUpdate: () => setAngle(tweenRef.current.value)
+
+     })
+
+
+
+    startAngle.current = degrees
+    prevAngle.current = clamped
+
+  }
+
+    const handleMouseUp = () => {
+    isDraggingRef.current = false;
+  }
+
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove)
+    window.addEventListener("mouseup", handleMouseUp)
+
+    return () => {
+    window.removeEventListener("mousemove", handleMouseMove)
+    window.removeEventListener("mouseup", handleMouseUp)
+    }
+
+  }, [])
+
+
+  return (
+    <div className="flex flex-col justify-center items-center min-h-screen bg-transparent">
+      <svg width="200" height="120" viewBox="0 0 200 60">
+  <path
+    d={getWaveformPath()}
+    fill="none"
+    stroke={getStrokeColor()}
+    strokeWidth="2"
+    transform="translate(0, 30)"
+    style={{
+      filter: isAtSnapPoint() ? 'drop-shadow(0 0 6px #00a8ff) drop-shadow(0 0 12px #00a8ff) drop-shadow(0 0 24px #00a8ff) drop-shadow(0 0 48px #0066cc)' : 'none',
+      transition: 'filter 0.15s ease'
+    }}
+  />
+</svg>
+
+      {/* Base plate */}
+      <div
+        className="relative flex items-center justify-center rounded-full"
+        style={{
+          width: "160px",
+          height: "160px",
+          background: "linear-gradient(145deg, #2a2a2a, #1a1a1a)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05)"
+        }}
+      >
+        {/* Knob container */}
+        <div
+          ref={knobRef}
+          onMouseDown={handleMouseDown}
+          className="relative cursor-pointer"
+          style={{
+            width: "140px",
+            height: "140px",
+            transform: `rotate(${angle}deg)`,
+          }}
+        >
+          {/* Faceted outer edge - SVG */}
+          <svg
+            viewBox="0 0 140 140"
+            className="absolute inset-0 w-full h-full"
+            style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.8))" }}
+          >
+            <defs>
+              {/* Gradient for chrome highlight on scallops */}
+              <linearGradient id="chromeHighlight" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform={`rotate(${-angle} 0.5 0.5)`}>
+                <stop offset="0%" stopColor="#1a1a1a" />
+                <stop offset="40%" stopColor="#1a1a1a" />
+                <stop offset="60%" stopColor={isAtSnapPoint() ? "#2a4a5a" : "#4a4a4a"} />
+                <stop offset="80%" stopColor={isAtSnapPoint() ? "#4488aa" : "#888888"} />
+                <stop offset="100%" stopColor={isAtSnapPoint() ? "#66aacc" : "#aaaaaa"} />
+              </linearGradient>
+              {/* Mask for 6-lobe scalloped shape */}
+              <mask id="scallopMask6">
+                <circle cx="70" cy="70" r="62" fill="white" />
+                {/* 6 deep scallops */}
+                {[0, 60, 120, 180, 240, 300].map((rot) => (
+                  <ellipse
+                    key={rot}
+                    cx="70"
+                    cy="4"
+                    rx="18"
+                    ry="14"
+                    fill="black"
+                    transform={`rotate(${rot} 70 70)`}
+                  />
+                ))}
+              </mask>
+            </defs>
+
+            {/* Main knob body - black with chrome edge highlight */}
+            <circle
+              cx="70"
+              cy="70"
+              r="62"
+              fill="url(#chromeHighlight)"
+              mask="url(#scallopMask6)"
+            />
+
+            {/* Inner dark ring/bevel */}
+            <circle
+              cx="70"
+              cy="70"
+              r="48"
+              fill="#0a0a0a"
+            />
+          </svg>
+
+          {/* Dark brushed metal top */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              top: "26px",
+              left: "26px",
+              width: "88px",
+              height: "88px",
+              background: isAtSnapPoint()
+                ? `conic-gradient(
+                    from 0deg,
+                    #1a1a1a,
+                    #1a2a35,
+                    #1a1a1a,
+                    #152530,
+                    #1a1a1a,
+                    #1a2a35,
+                    #1a1a1a,
+                    #152530,
+                    #1a1a1a
+                  )`
+                : `conic-gradient(
+                    from 0deg,
+                    #1a1a1a,
+                    #2a2a2a,
+                    #1a1a1a,
+                    #252525,
+                    #1a1a1a,
+                    #2a2a2a,
+                    #1a1a1a,
+                    #252525,
+                    #1a1a1a
+                  )`,
+              transition: "background 0.15s ease",
+              boxShadow: "inset 0 1px 2px rgba(255,255,255,0.08), inset 0 -2px 4px rgba(0,0,0,0.4)",
+            }}
+          />
+
+          {/* Subtle notch indicator on top */}
+          <div
+            className="absolute"
+            style={{
+              width: "3px",
+              height: "16px",
+              top: "28px",
+              left: "68.5px",
+              background: "linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)",
+            }}
+          />
+        </div>
+
+      </div>
+    </div>
+  );
+}
