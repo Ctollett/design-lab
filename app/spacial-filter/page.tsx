@@ -144,23 +144,29 @@ export default function SpatialFilter() {
       const dot = dotRefs.current[font.id]
       const distance = Math.sqrt(xPos * xPos + yPos * yPos)
       const proximity = 1 - (distance / influenceRadius);
-   const velocityFactor = 0.5 + velocity * 0.5;  // ranges from 0.5 to 1
-const offsetX = -xPos * proximity * 2 * velocityFactor;
-const offsetY = -yPos * proximity * 2 * velocityFactor;
+const offsetX = -xPos * proximity * 2;
+const offsetY = -yPos * proximity * 2;
 
 
       if (distance < influenceRadius && distance > 0) {
-        gsap.set(dot, { x: offsetX, y: offsetY });
+        gsap.to(dot, {
+          x: offsetX,
+          y: offsetY,
+          duration: 0.25,
+          ease: "power2.out",
+          overwrite: true,
+        });
+
         influencedDots.current.add(font.id);
-        } else if (influencedDots.current.has(font.id)) {
+      } else if (influencedDots.current.has(font.id)) {
           influencedDots.current.delete(font.id) 
-            gsap.to(dot, {
-              x: 0, 
-              y: 0,
-              duration: 0.5,
-                ease: "elastic.out(20, 0.8)",
-                
-            })
+           gsap.to(dot, {
+  x: 0,
+  y: 0,
+  duration: 0.5 + Math.random() * 0.4,  // 0.5 to 0.8 seconds
+  ease: `elastic.out(2, ${0.25 + Math.random() * 0.1})`,  // damping 0.25 to 0.4
+})
+
           
         }
 

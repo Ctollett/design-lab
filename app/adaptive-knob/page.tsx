@@ -267,7 +267,7 @@ export default function AdaptiveKnob() {
       </svg>
 
       {/* Knob with tick marks */}
-      <div className="relative" style={{ width: "220px", height: "220px" }}>
+      <div className="relative select-none" style={{ width: "220px", height: "220px" }}>
         {/* Tick mark labels */}
         {['SIN', 'TRI', 'SAW', 'SQR'].map((label, i) => {
           const tickAngle = snapPoints[i]
@@ -308,7 +308,7 @@ export default function AdaptiveKnob() {
         <div
           ref={knobRef}
           onMouseDown={handleMouseDown}
-          className="relative cursor-pointer"
+          className="relative cursor-grab active:cursor-grabbing select-none"
           style={{
             width: "140px",
             height: "140px",

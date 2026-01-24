@@ -17,3 +17,14 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
+
+[contentEditable="true"]:empty::before {
+  content: attr(data-placeholder);
+  color: white; /* neutral-500 */
+  pointer-events: none;
+}
+
+::selection {
+  background-color: black; /* blue */
+  color: white !important;
+}

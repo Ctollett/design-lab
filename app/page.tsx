@@ -2,12 +2,18 @@ import Link from "next/link";
 
 const demos = [
   {
+    slug: "inline-auto-suggest",
+    title: "Inline Auto-Suggest",
+    description: "Text selection with ghost text rewrite suggestions",
+    isRoot: true,
+  },
+  {
     slug: "example",
     title: "Example Demo",
     description: "GSAP + Framer Motion showcase",
   },
   {
-   slug: "test",
+    slug: "test",
     title: "Test Demo",
     description: "My first demo",
   },
@@ -30,7 +36,7 @@ export default function Home() {
           {demos.map((demo) => (
             <Link
               key={demo.slug}
-              href={`/demos/${demo.slug}`}
+              href={demo.isRoot ? `/${demo.slug}` : `/demos/${demo.slug}`}
               className="group rounded-lg border border-zinc-800 bg-zinc-900/50 p-6 transition-all hover:border-zinc-700 hover:bg-zinc-900"
             >
               <h2 className="mb-2 text-xl font-medium text-white group-hover:text-zinc-100">
