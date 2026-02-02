@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import openai from '@/lib/services/openai';
+import { getOpenAI } from '@/lib/services/openai';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const openai = getOpenAI();
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
