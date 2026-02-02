@@ -32,17 +32,34 @@ export default function LabCanvas({ children, bg }: LabCanvasProps) {
   const isPreview = searchParams.has('preview');
 
   if (isPreview) {
+    // Preview mode with guides for recording
+    // The red dashed border shows exactly what to record (700×450)
     return (
-      <div
-        className="flex items-center justify-center overflow-hidden"
-        style={{
-          width: '700px',
-          height: '450px',
-          backgroundColor: bg || '#0a0a0a',
-        }}
-      >
-        <div className="w-[650px] h-[420px] flex items-center justify-center">
-          {children}
+      <div className="w-screen h-screen flex items-center justify-center" style={{ backgroundColor: '#1a1a1a' }}>
+        <div
+          className="relative flex items-center justify-center overflow-hidden"
+          style={{
+            width: '700px',
+            height: '450px',
+            backgroundColor: bg || '#0a0a0a',
+            border: '2px dashed #ff4444',
+            boxShadow: '0 0 0 9999px rgba(0,0,0,0.7)',
+          }}
+        >
+          {/* Corner guides */}
+          <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#ff4444]" />
+          <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#ff4444]" />
+          <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#ff4444]" />
+          <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#ff4444]" />
+
+          {/* Dimension label */}
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-[#ff4444] text-xs font-mono">
+            700 × 450
+          </div>
+
+          <div className="w-[650px] h-[420px] flex items-center justify-center">
+            {children}
+          </div>
         </div>
       </div>
     );
