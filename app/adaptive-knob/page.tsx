@@ -53,13 +53,13 @@ export default function AdaptiveKnob() {
   }
 
 
-  const generateWaveformPoints = (type, width, height, points) => {
+  const generateWaveformPoints = (type: string, width: number, height: number, points: number): {x: number, y: number}[] => {
 
-     const wavePoints = []
+     const wavePoints: {x: number, y: number}[] = []
 
     for(let i = 0; i <= points; i++) {
   const x = (i / points) * width
-  let y
+  let y = 0
   
   switch(type) {
     case 'sine':
@@ -91,8 +91,8 @@ export default function AdaptiveKnob() {
   }
 
 
-  const pointsToPath = (points) => {
-  return points.map((p, i) => 
+  const pointsToPath = (points: {x: number, y: number}[]) => {
+  return points.map((p: {x: number, y: number}, i: number) =>
     `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
   ).join(' ')
 }
@@ -120,8 +120,11 @@ export default function AdaptiveKnob() {
   let blendedPoints = []
 
   for (let i = 0; i < fromPoints.length; i++ ) {
-    let blendedY = fromPoints[i].y * (1 - progress) + toPoints[i].y * progress
-    blendedPoints.push({x: fromPoints[i].x, y: blendedY})
+    const fromPoint = fromPoints[i];
+    const toPoint = toPoints[i];
+    if (!fromPoint || !toPoint) continue;
+    const blendedY = fromPoint.y * (1 - progress) + toPoint.y * progress;
+    blendedPoints.push({x: fromPoint.x, y: blendedY})
     
   }
   return pointsToPath(blendedPoints)
