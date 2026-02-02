@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import gsap from "gsap";
+import { LabCanvas } from "@/components";
 
 export default function AdaptiveKnob() {
   const [angle, setAngle] = useState(0);
@@ -246,7 +247,8 @@ export default function AdaptiveKnob() {
 
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-transparent">
+    <LabCanvas>
+      <div className="flex flex-col justify-center items-center">
       <svg width="200" height="120" viewBox="0 0 200 60">
         <defs>
           <filter id="ledGlow" x="-50%" y="-50%" width="200%" height="200%">
@@ -408,6 +410,7 @@ export default function AdaptiveKnob() {
 
         </div>
       </div>
-    </div>
+      </div>
+    </LabCanvas>
   );
 }
