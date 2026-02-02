@@ -1,22 +1,26 @@
 {
+  "repo": "Ctollett/design-lab",
   "labs": [
     {
       "slug": "spacial-filter",
       "title": "Spacial Filter",
       "description": "A spacial filtering interaction",
-      "date": "2026-01-01"
+      "date": "2026-01-01",
+      "codeFile": "app/spacial-filter/page.tsx"
     },
     {
       "slug": "adaptive-knob",
       "title": "Adaptive Knob",
       "description": "An adaptive knob control",
-      "date": "2026-01-01"
+      "date": "2026-01-01",
+      "codeFile": "app/adaptive-knob/page.tsx"
     },
     {
       "slug": "inline-auto-suggest",
       "title": "Inline Auto Suggest",
       "description": "Inline auto-suggestion interaction",
-      "date": "2026-01-01"
+      "date": "2026-01-01",
+      "codeFile": "app/inline-auto-suggest/page.tsx"
     }
   ]
 }
