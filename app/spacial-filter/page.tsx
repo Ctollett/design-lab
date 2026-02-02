@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion, percent } from "framer-motion";
+import { motion } from "framer-motion";
 import fontData from "./fonts.json";
 import gsap from "gsap";
-
+import { LabCanvas } from "@/components";
 
 type Font = {
   id: number;
@@ -58,7 +58,7 @@ export default function SpatialFilter() {
   const getDistance = (font: Font) => {
     const xPos = font.x - circlePos.x;
     const yPos = font.y - circlePos.y;
-  
+
     return Math.sqrt(xPos * xPos + yPos * yPos);
   };
 
@@ -136,7 +136,6 @@ export default function SpatialFilter() {
 
     // ----------------------------------------
     // Dot attraction animation
-    // TODO: Implement GSAP animation here
     // ----------------------------------------
     fontData.forEach((font) => {
       const xPos = font.x - percentX;
@@ -144,9 +143,8 @@ export default function SpatialFilter() {
       const dot = dotRefs.current[font.id]
       const distance = Math.sqrt(xPos * xPos + yPos * yPos)
       const proximity = 1 - (distance / influenceRadius);
-const offsetX = -xPos * proximity * 2;
-const offsetY = -yPos * proximity * 2;
-
+      const offsetX = -xPos * proximity * 2;
+      const offsetY = -yPos * proximity * 2;
 
       if (distance < influenceRadius && distance > 0) {
         gsap.to(dot, {
@@ -159,21 +157,15 @@ const offsetY = -yPos * proximity * 2;
 
         influencedDots.current.add(font.id);
       } else if (influencedDots.current.has(font.id)) {
-          influencedDots.current.delete(font.id) 
-           gsap.to(dot, {
-  x: 0,
-  y: 0,
-  duration: 0.5 + Math.random() * 0.4,  // 0.5 to 0.8 seconds
-  ease: `elastic.out(2, ${0.25 + Math.random() * 0.1})`,  // damping 0.25 to 0.4
-})
-
-          
-        }
-
-
-    })
-
-
+        influencedDots.current.delete(font.id)
+        gsap.to(dot, {
+          x: 0,
+          y: 0,
+          duration: 0.5 + Math.random() * 0.4,
+          ease: `elastic.out(2, ${0.25 + Math.random() * 0.1})`,
+        });
+      }
+    });
   };
 
   // ============================================
@@ -181,137 +173,137 @@ const offsetY = -yPos * proximity * 2;
   // ============================================
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center overflow-hidden p-4">
-      <div className="flex flex-row gap-4 items-center justify-center bg-transparent">
-      <div className="flex flex-col items-center gap-2">
-        {/* Y-axis label - top */}
-        <span className="text-white/20 text-xs">Geometric</span>
+    <LabCanvas>
+      <div className="flex flex-row gap-3 items-center justify-center">
+        {/* Main canvas section */}
+        <div className="flex flex-col items-center gap-1">
+          {/* Y-axis label - top */}
+          <span className="text-white/20 text-[10px]">Geometric</span>
 
-        <div className="flex items-center gap-2">
-          {/* X-axis label - left */}
-          <span className="text-white/20 text-xs -rotate-90 w-4">Thin</span>
+          <div className="flex items-center gap-1">
+            {/* X-axis label - left */}
+            <span className="text-white/20 text-[10px] -rotate-90 w-3">Thin</span>
 
-          {/* Canvas */}
-          <div
-            ref={canvasRef}
-            className="relative flex h-[min(70vh,70vw)] w-[min(70vh,70vw)] rounded-[12px]"
-            style={{
-              backgroundColor: "rgba(5, 7, 9, 0.07)",
-              border: "2px solid rgba(45, 45, 45, 0.90)",
-            }}
-          >
-            {/* Draggable circle */}
-            <motion.div
-              drag
-              dragMomentum={false}
-              dragConstraints={canvasRef}
-              dragTransition={{ power: 0.9, timeConstant: 900 }}
-              dragElastic={0}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDrag={handleDrag}
-              ref={circleRef}
-              className="absolute z-40 cursor-pointer h-[12%] w-[12%] rounded-full border-2 border-white bg-white/20 -translate-x-1/2 -translate-y-1/2"
-              style={{ left: "50%", top: "50%" }}
-            />
-
-            {/* Dots */}
-            {fontData.map((font) => {
-              const distance = getDistance(font);
-              const isSelected = distance <= circleRadiusPercent;
-
-              return (
-                <div
-                  key={font.id}
-                  ref={(el) => {
-                    dotRefs.current[font.id] = el;
-                  }}
-                  className="absolute rounded-full"
-                  style={{
-                    left: `${font.x}%`,
-                    top: `${font.y}%`,
-                    width: isSelected ? "12px" : "8px",
-                    height: isSelected ? "12px" : "8px",
-                    backgroundColor: isSelected ? "white" : "rgba(255,255,255,0.5)",
-                    transform: "translate(-50%, -50%)",
-                  }}
-                />
-              );
-            })}
-
-            {/* Crosshair lines */}
+            {/* Canvas - fixed size that fits within LabCanvas */}
             <div
-              className="absolute h-[1px] bg-white/30 pointer-events-none"
+              ref={canvasRef}
+              className="relative flex h-[340px] w-[340px] rounded-[8px]"
               style={{
-                left: 0,
-                top: `${circlePos.y}%`,
-                width: `${circlePos.x - 6.25}%`,
+                backgroundColor: "rgba(5, 7, 9, 0.07)",
+                border: "2px solid rgba(45, 45, 45, 0.90)",
               }}
-            />
-            <div
-              className="absolute h-[1px] bg-white/30 pointer-events-none"
-              style={{
-                left: `${circlePos.x + 6.25}%`,
-                top: `${circlePos.y}%`,
-                width: `${100 - circlePos.x - 6.25}%`,
-              }}
-            />
-            <div
-              className="absolute w-[1px] bg-white/30 pointer-events-none"
-              style={{
-                top: 0,
-                left: `${circlePos.x}%`,
-                height: `${circlePos.y - 6.25}%`,
-              }}
-            />
-            <div
-              className="absolute w-[1px] bg-white/30 pointer-events-none"
-              style={{
-                top: `${circlePos.y + 6.25}%`,
-                left: `${circlePos.x}%`,
-                height: `${100 - circlePos.y - 6.25}%`,
-              }}
-            />
+            >
+              {/* Draggable circle */}
+              <motion.div
+                drag
+                dragMomentum={false}
+                dragConstraints={canvasRef}
+                dragTransition={{ power: 0.9, timeConstant: 900 }}
+                dragElastic={0}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDrag={handleDrag}
+                ref={circleRef}
+                className="absolute z-40 cursor-pointer h-[40px] w-[40px] rounded-full border-2 border-white bg-white/20 -translate-x-1/2 -translate-y-1/2"
+                style={{ left: "50%", top: "50%" }}
+              />
+
+              {/* Dots */}
+              {fontData.map((font) => {
+                const distance = getDistance(font);
+                const isSelected = distance <= circleRadiusPercent;
+
+                return (
+                  <div
+                    key={font.id}
+                    ref={(el) => {
+                      dotRefs.current[font.id] = el;
+                    }}
+                    className="absolute rounded-full"
+                    style={{
+                      left: `${font.x}%`,
+                      top: `${font.y}%`,
+                      width: isSelected ? "8px" : "5px",
+                      height: isSelected ? "8px" : "5px",
+                      backgroundColor: isSelected ? "white" : "rgba(255,255,255,0.5)",
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  />
+                );
+              })}
+
+              {/* Crosshair lines */}
+              <div
+                className="absolute h-[1px] bg-white/30 pointer-events-none"
+                style={{
+                  left: 0,
+                  top: `${circlePos.y}%`,
+                  width: `${circlePos.x - 6.25}%`,
+                }}
+              />
+              <div
+                className="absolute h-[1px] bg-white/30 pointer-events-none"
+                style={{
+                  left: `${circlePos.x + 6.25}%`,
+                  top: `${circlePos.y}%`,
+                  width: `${100 - circlePos.x - 6.25}%`,
+                }}
+              />
+              <div
+                className="absolute w-[1px] bg-white/30 pointer-events-none"
+                style={{
+                  top: 0,
+                  left: `${circlePos.x}%`,
+                  height: `${circlePos.y - 6.25}%`,
+                }}
+              />
+              <div
+                className="absolute w-[1px] bg-white/30 pointer-events-none"
+                style={{
+                  top: `${circlePos.y + 6.25}%`,
+                  left: `${circlePos.x}%`,
+                  height: `${100 - circlePos.y - 6.25}%`,
+                }}
+              />
+            </div>
+
+            {/* X-axis label - right */}
+            <span className="text-white/20 text-[10px] -rotate-90 w-3">Bold</span>
           </div>
 
-          {/* X-axis label - right */}
-          <span className="text-white/20 text-sm -rotate-90 w-4">Bold</span>
+          {/* Y-axis label - bottom */}
+          <span className="text-white/20 text-[10px]">Humanist</span>
         </div>
 
-        {/* Y-axis label - bottom */}
-        <span className="text-white/20 text-sm">Humanist</span>
-      </div>
-
-      {/* Font list sidebar */}
-      <div className="flex justify-start items-start h-[min(70vh,70vw)] w-[20vw] max-w-[150px]">
-        <ul
-          className="flex flex-col justify-start items-start h-full w-full gap-2"
-          style={{
-            // Blur effect based on drag velocity
-            opacity: velocity > 0.3 ? 1 - velocity * 0.9 : 1,
-            filter: velocity > 0.3 ? `blur(${velocity * 18}px)` : "none",
-            transition: "opacity 0.15s ease-out, filter 0.15s ease-out",
-          }}
-        >
-          {filteredFonts.map((font) => (
-            <motion.li
-              key={font.id}
-              initial={{ opacity: 0, y: 2, filter: "blur(2px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ duration: 0.65, ease: "easeInOut" }}
-              className="w-full rounded-lg border-1 border-zinc-900 p-2"
-            >
-              <span
-                style={{ fontFamily: font.family }}
-                className="text-white text-sm w-full"
+        {/* Font list sidebar */}
+        <div className="flex justify-start items-start h-[340px] w-[120px]">
+          <ul
+            className="flex flex-col justify-start items-start h-full w-full gap-1 overflow-hidden"
+            style={{
+              opacity: velocity > 0.3 ? 1 - velocity * 0.9 : 1,
+              filter: velocity > 0.3 ? `blur(${velocity * 18}px)` : "none",
+              transition: "opacity 0.15s ease-out, filter 0.15s ease-out",
+            }}
+          >
+            {filteredFonts.map((font) => (
+              <motion.li
+                key={font.id}
+                initial={{ opacity: 0, y: 2, filter: "blur(2px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 0.65, ease: "easeInOut" }}
+                className="w-full rounded-md border border-zinc-800 px-2 py-1"
               >
-                {font.name}
-              </span>
-            </motion.li>
-          ))}
-        </ul>
+                <span
+                  style={{ fontFamily: font.family }}
+                  className="text-white text-xs w-full block truncate"
+                >
+                  {font.name}
+                </span>
+              </motion.li>
+            ))}
+          </ul>
+        </div>
       </div>
-      </div>
-    </div>
+    </LabCanvas>
   );
 }
