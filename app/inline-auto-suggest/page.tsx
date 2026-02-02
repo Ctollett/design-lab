@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import AI from "../../images/noun-ai-7315703.svg";
+import { LabCanvas } from "@/components";
 
 type Status = "idle" | "loading" | "preview";
 
@@ -231,9 +232,8 @@ export default function InlineAutoSuggest() {
   const buttonExit = { opacity: 0, y: -8, filter: "blur(2px)" };
 
   return (
-    <div className="fixed inset-0 bg-[#f5f5f4]">
-      <div className="min-h-screen flex flex-col items-center justify-center p-8">
-        <div className="w-full max-w-2xl">
+    <LabCanvas bg="#f5f5f4">
+      <div className="relative w-full max-w-[500px] h-[350px] flex flex-col items-center justify-center p-4">
           <div className="flex flex-col gap-4 mb-8">
             <AnimatePresence>
               {selectionRect && status === "idle" && (
@@ -310,7 +310,6 @@ export default function InlineAutoSuggest() {
             />
           </div>
         </div>
-      </div>
-    </div>
+    </LabCanvas>
   );
 }
