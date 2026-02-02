@@ -181,20 +181,20 @@ const offsetY = -yPos * proximity * 2;
   // ============================================
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center overflow-hidden">
-      <div style={{ zoom: 0.5 }} className="flex flex-row gap-8 items-center justify-center bg-transparent">
-      <div className="flex flex-col items-center gap-4">
+    <div className="w-screen h-screen flex items-center justify-center overflow-hidden p-4">
+      <div className="flex flex-row gap-4 items-center justify-center bg-transparent">
+      <div className="flex flex-col items-center gap-2">
         {/* Y-axis label - top */}
-        <span className="text-white/20 text-sm">Geometric</span>
+        <span className="text-white/20 text-xs">Geometric</span>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {/* X-axis label - left */}
-          <span className="text-white/20 text-sm -rotate-90 w-4">Thin</span>
+          <span className="text-white/20 text-xs -rotate-90 w-4">Thin</span>
 
           {/* Canvas */}
           <div
             ref={canvasRef}
-            className="relative flex h-[40rem] w-[40rem] rounded-[12px]"
+            className="relative flex h-[min(70vh,70vw)] w-[min(70vh,70vw)] rounded-[12px]"
             style={{
               backgroundColor: "rgba(5, 7, 9, 0.07)",
               border: "2px solid rgba(45, 45, 45, 0.90)",
@@ -211,7 +211,7 @@ const offsetY = -yPos * proximity * 2;
               onDragEnd={handleDragEnd}
               onDrag={handleDrag}
               ref={circleRef}
-              className="absolute z-40 cursor-pointer h-20 w-20 rounded-full border-2 border-white bg-white/20 -translate-x-1/2 -translate-y-1/2"
+              className="absolute z-40 cursor-pointer h-[8%] w-[8%] rounded-full border-2 border-white bg-white/20 -translate-x-1/2 -translate-y-1/2"
               style={{ left: "50%", top: "50%" }}
             />
 
