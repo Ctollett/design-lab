@@ -6,7 +6,8 @@
       "title": "Spacial Filter",
       "description": "A spacial filtering interaction",
       "date": "2026-01-01",
-      "codeFile": "app/spacial-filter/page.tsx"
+      "codeFile": "app/spacial-filter/page.tsx",
+      "previewVideo": "/previews/spacial-filter.mov"
     },
     {
       "slug": "adaptive-knob",
