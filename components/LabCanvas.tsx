@@ -1,3 +1,7 @@
+'use client';
+
+import { useSearchParams } from 'next/navigation';
+
 /**
  * LabCanvas - Template for all design lab experiments
  *
@@ -10,6 +14,11 @@
  * - Use percentage-based or viewport-relative sizing
  * - Avoid fixed pixel sizes larger than ~600px × 400px
  * - The canvas automatically centers content
+ *
+ * PREVIEW MODE:
+ * - Add ?preview to the URL to render at exactly 700×450
+ * - Use this mode for consistent screen recordings
+ * - Example: /spacial-filter?preview
  */
 
 interface LabCanvasProps {
@@ -19,6 +28,26 @@ interface LabCanvasProps {
 }
 
 export default function LabCanvas({ children, bg }: LabCanvasProps) {
+  const searchParams = useSearchParams();
+  const isPreview = searchParams.has('preview');
+
+  if (isPreview) {
+    return (
+      <div
+        className="flex items-center justify-center overflow-hidden"
+        style={{
+          width: '700px',
+          height: '450px',
+          backgroundColor: bg || '#0a0a0a',
+        }}
+      >
+        <div className="w-[650px] h-[420px] flex items-center justify-center">
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="w-screen h-screen flex items-center justify-center overflow-hidden p-4"
