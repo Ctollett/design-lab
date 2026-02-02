@@ -182,7 +182,7 @@ const offsetY = -yPos * proximity * 2;
 
   return (
     <div className="w-screen h-screen flex items-center justify-center overflow-hidden">
-      <div className="transform scale-[0.5] origin-center flex flex-row gap-8 items-center justify-center bg-transparent">
+      <div style={{ zoom: 0.5 }} className="flex flex-row gap-8 items-center justify-center bg-transparent">
       <div className="flex flex-col items-center gap-4">
         {/* Y-axis label - top */}
         <span className="text-white/20 text-sm">Geometric</span>
