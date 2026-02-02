@@ -211,7 +211,7 @@ const offsetY = -yPos * proximity * 2;
               onDragEnd={handleDragEnd}
               onDrag={handleDrag}
               ref={circleRef}
-              className="absolute z-40 cursor-pointer h-[8%] w-[8%] rounded-full border-2 border-white bg-white/20 -translate-x-1/2 -translate-y-1/2"
+              className="absolute z-40 cursor-pointer h-[12%] w-[12%] rounded-full border-2 border-white bg-white/20 -translate-x-1/2 -translate-y-1/2"
               style={{ left: "50%", top: "50%" }}
             />
 
@@ -283,9 +283,9 @@ const offsetY = -yPos * proximity * 2;
       </div>
 
       {/* Font list sidebar */}
-      <div className="flex justify-start items-start h-[40rem] w-[10rem]">
+      <div className="flex justify-start items-start h-[min(70vh,70vw)] w-[20vw] max-w-[150px]">
         <ul
-          className="flex flex-col justify-start items-start h-[20rem] w-[10rem] gap-4"
+          className="flex flex-col justify-start items-start h-full w-full gap-2"
           style={{
             // Blur effect based on drag velocity
             opacity: velocity > 0.3 ? 1 - velocity * 0.9 : 1,
@@ -299,11 +299,11 @@ const offsetY = -yPos * proximity * 2;
               initial={{ opacity: 0, y: 2, filter: "blur(2px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.65, ease: "easeInOut" }}
-              className="w-[200px] rounded-lg border-1 border-zinc-900 p-4"
+              className="w-full rounded-lg border-1 border-zinc-900 p-2"
             >
               <span
                 style={{ fontFamily: font.family }}
-                className="text-white text-lg w-full"
+                className="text-white text-sm w-full"
               >
                 {font.name}
               </span>
