@@ -34,28 +34,36 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
 
   if (isPreview) {
     // Preview mode with guides for recording
-    // The red dashed border shows exactly what to record (700×450)
+    // Recording area is 716x466 (8px bleed on each side for rounded corners)
+    // Inner guides show 700x450 visible area after rounded corner clipping
+    const bleed = 8;
+    const width = 700;
+    const height = 450;
+    const recordWidth = width + bleed * 2;
+    const recordHeight = height + bleed * 2;
+
     return (
       <div className="w-screen h-screen flex items-center justify-center" style={{ backgroundColor: '#1a1a1a' }}>
         <div
           className="relative flex items-center justify-center overflow-hidden"
           style={{
-            width: '700px',
-            height: '450px',
+            width: `${recordWidth}px`,
+            height: `${recordHeight}px`,
             backgroundColor: bg || '#0a0a0a',
             border: '2px dashed #ff4444',
             boxShadow: '0 0 0 9999px rgba(0,0,0,0.7)',
+            borderRadius: '8px',
           }}
         >
-          {/* Corner guides */}
-          <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#ff4444]" />
-          <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#ff4444]" />
-          <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#ff4444]" />
-          <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#ff4444]" />
+          {/* Corner guides showing where rounded corners will clip */}
+          <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-[#ff4444] rounded-tl-lg" />
+          <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-[#ff4444] rounded-tr-lg" />
+          <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-[#ff4444] rounded-bl-lg" />
+          <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-[#ff4444] rounded-br-lg" />
 
           {/* Dimension label */}
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-[#ff4444] text-xs font-mono">
-            700 × 450
+            {recordWidth} × {recordHeight} (record this)
           </div>
 
           {children}
