@@ -34,11 +34,11 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
 
   if (isPreview) {
     // Preview mode with guides for recording
-    // Slightly larger than portfolio container (580x450) with 8px bleed on each side
-    // The extra black bleeds out and gets cropped by the container
-    const bleed = 8;
-    const width = 580 + bleed * 2;  // 596
-    const height = 450 + bleed * 2; // 466
+    // Larger than portfolio container (580x450) with 24px bleed on each side
+    // The extra black padding gets cropped by object-cover + rounded corners
+    const bleed = 24;
+    const width = 580 + bleed * 2;  // 628
+    const height = 450 + bleed * 2; // 498
 
     return (
       <div className="w-screen h-screen flex items-center justify-center" style={{ backgroundColor: '#1a1a1a' }}>
