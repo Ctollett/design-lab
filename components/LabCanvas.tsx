@@ -42,7 +42,7 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
           style={{
             width: '700px',
             height: '450px',
-            backgroundColor: bg || '#0a0a0a',
+            backgroundColor: bg || '#000000',
             border: '2px dashed #ff4444',
             boxShadow: '0 0 0 9999px rgba(0,0,0,0.7)',
           }}
