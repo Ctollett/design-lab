@@ -306,8 +306,10 @@ export default function InlineAutoSuggest() {
             <div
               className="outline-none text-xl text-neutral-800"
               contentEditable="true"
-              data-placeholder="Enter text here..."
-            />
+              suppressContentEditableWarning
+            >
+              Enter text here
+            </div>
           </div>
         </div>
     </LabCanvas>
