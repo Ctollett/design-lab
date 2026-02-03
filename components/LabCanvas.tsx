@@ -58,9 +58,7 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
             700 × 450
           </div>
 
-          <div className="w-[650px] h-[420px] flex items-center justify-center">
-            {children}
-          </div>
+          {children}
         </div>
       </div>
     );
