@@ -34,28 +34,37 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
 
   if (isPreview) {
     // Preview mode with guides for recording
-    // Matches portfolio container: 580px wide (628px max-w - 48px padding) × 450px tall
+    // Slightly larger than portfolio container (580x450) with 8px bleed on each side
+    // The extra black bleeds out and gets cropped by the container
+    const bleed = 8;
+    const width = 580 + bleed * 2;  // 596
+    const height = 450 + bleed * 2; // 466
+
     return (
       <div className="w-screen h-screen flex items-center justify-center" style={{ backgroundColor: '#1a1a1a' }}>
         <div
-          className="relative flex items-center justify-center overflow-hidden rounded-lg"
+          className="relative flex items-center justify-center overflow-hidden"
           style={{
-            width: '580px',
-            height: '450px',
+            width: `${width}px`,
+            height: `${height}px`,
             backgroundColor: bg || '#0a0a0a',
             border: '2px dashed #ff4444',
             boxShadow: '0 0 0 9999px rgba(0,0,0,0.7)',
           }}
         >
-          {/* Corner guides */}
-          <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#ff4444]" />
-          <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#ff4444]" />
-          <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#ff4444]" />
-          <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#ff4444]" />
+          {/* Inner guides showing visible area (580x450) */}
+          <div
+            className="absolute border border-dashed border-[#ff4444]/50 pointer-events-none"
+            style={{
+              width: '580px',
+              height: '450px',
+              borderRadius: '8px',
+            }}
+          />
 
           {/* Dimension label */}
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-[#ff4444] text-xs font-mono">
-            580 × 450
+            {width} × {height} (8px bleed)
           </div>
 
           {children}
