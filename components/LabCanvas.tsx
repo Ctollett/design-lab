@@ -52,16 +52,6 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
             boxShadow: '0 0 0 9999px rgba(0,0,0,0.7)',
           }}
         >
-          {/* Inner guides showing visible area (580x450) */}
-          <div
-            className="absolute border border-dashed border-[#ff4444]/50 pointer-events-none"
-            style={{
-              width: '580px',
-              height: '450px',
-              borderRadius: '8px',
-            }}
-          />
-
           {/* Dimension label */}
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-[#ff4444] text-xs font-mono">
             {width} × {height} (8px bleed)
