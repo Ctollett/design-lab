@@ -14,7 +14,8 @@
       "title": "Adaptive Knob",
       "description": "An adaptive knob control",
       "date": "2026-01-01",
-      "codeFile": "app/adaptive-knob/page.tsx"
+      "codeFile": "app/adaptive-knob/page.tsx",
+      "previewVideo": "/previews/adaptive-knob.mp4"
     },
     {
       "slug": "inline-auto-suggest",
