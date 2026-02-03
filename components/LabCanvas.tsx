@@ -1,6 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 /**
  * LabCanvas - Template for all design lab experiments
@@ -27,7 +28,7 @@ interface LabCanvasProps {
   bg?: string;
 }
 
-export default function LabCanvas({ children, bg }: LabCanvasProps) {
+function LabCanvasInner({ children, bg }: LabCanvasProps) {
   const searchParams = useSearchParams();
   const isPreview = searchParams.has('preview');
 
@@ -75,5 +76,13 @@ export default function LabCanvas({ children, bg }: LabCanvasProps) {
         {children}
       </div>
     </div>
+  );
+}
+
+export default function LabCanvas({ children, bg }: LabCanvasProps) {
+  return (
+    <Suspense fallback={<div className="w-screen h-screen" style={{ backgroundColor: bg || 'transparent' }} />}>
+      <LabCanvasInner bg={bg}>{children}</LabCanvasInner>
+    </Suspense>
   );
 }
