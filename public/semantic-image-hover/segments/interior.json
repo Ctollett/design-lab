@@ -1,0 +1,42 @@
+{
+  "width": 2018,
+  "height": 2260,
+  "segments": [
+    {
+      "id": 0,
+      "label": "book",
+      "score": 0.8525374531745911
+    },
+    {
+      "id": 1,
+      "label": "LABEL_199",
+      "score": 0.9586976170539856
+    },
+    {
+      "id": 2,
+      "label": "LABEL_190",
+      "score": 0.9981791377067566
+    },
+    {
+      "id": 3,
+      "label": "couch",
+      "score": 0.8132654428482056
+    },
+    {
+      "id": 4,
+      "label": "cup",
+      "score": 0.7504300475120544
+    },
+    {
+      "id": 5,
+      "label": "light",
+      "score": 0.9954054355621338
+    },
+    {
+      "id": 6,
+      "label": "potted plant",
+      "score": 0.999180257320404
+    }
+  ],
+  "mapImage": "interior-map.png"
+}
