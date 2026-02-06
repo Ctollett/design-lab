@@ -31,6 +31,7 @@ export default function SemanticImageHover() {
   const cardRef = useRef<HTMLDivElement>(null)
 
 
+
 useEffect(() => {
   const timeoutId = setTimeout(() => {
     console.log("Delayed check - canvas:", canvasRef.current);
@@ -84,7 +85,7 @@ useEffect(() => {
     const relativeY = mouseY - rect.top;
 
     if (cardRef.current) {
-  cardRef.current.style.transform = `translate(${relativeX - 375}px, ${relativeY + 25}px)`
+  cardRef.current.style.transform = `translate(${mouseX - 12}px, ${mouseY - 12}px)`
 
 
 }
@@ -103,11 +104,14 @@ useEffect(() => {
     const segmentId = pixel?.data[0]
 
     const segment = segmentData.segments.find(s => s.id === segmentId)
+    console.log("segment:", segment?.label, "id:", segmentId)
+    const hasProduct = segment && productMap[segment.label]
 
-    setHoveredSegment(segment || null)
-    console.log("segement", segment?.label)
-    console.log("pixel data:", pixel?.data[0], pixel?.data[1], pixel?.data[2])
-console.log("coords:", Math.floor(imageX), Math.floor(imageY))
+    if (hasProduct) {
+      setHoveredSegment(prev => prev?.id === segment.id ? prev : segment)
+    } else {
+      setHoveredSegment(null)
+    }
 
   }
 
@@ -116,7 +120,7 @@ console.log("coords:", Math.floor(imageX), Math.floor(imageY))
   return (
     <LabCanvas bg="#0a0a0a">
       <div className="relative w-full max-w-[800px] flex flex-col items-center justify-center p-4">
-        <div className="">
+        <div style={{pointerEvents: 'none'}}>
           <ProductCard segment={hoveredSegment} cardRef={cardRef}/>
         </div>
     <img 
@@ -124,7 +128,7 @@ console.log("coords:", Math.floor(imageX), Math.floor(imageY))
   alt="Interior"
   ref={imageRef}
   onMouseMove={handleMove}
-  style={{ cursor: hoveredSegment && productMap[hoveredSegment.label] ? 'pointer' : 'default' }}
+  style={{ cursor: 'none'}}
 />
   
       </div>
