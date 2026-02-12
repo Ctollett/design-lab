@@ -28,3 +28,15 @@ body {
   background-color: black; /* blue */
   color: white !important;
 }
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  20% {
+    background-position: -50% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

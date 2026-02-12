@@ -12,6 +12,7 @@ export interface Task {
   confidence: ConfidenceLevel;
   status: TaskStatus;
   dependsOn?: string[];
+  workingSteps?: string[];
   clarification?: {
     question: string;
     options: ClarificationOption[];
@@ -25,19 +26,33 @@ export const initialTasks: Task[] = [
     id: '1',
     label: 'Draft meeting reminder message',
     confidence: 'high',
-    status: 'pending',
+    status: 'in_progress',
+    workingSteps: [
+      'Analyzing meeting context...',
+      'Structuring message...',
+      'Polishing draft...',
+    ],
   },
   {
     id: '2',
     label: 'Pull calendar details for tomorrow',
     confidence: 'high',
     status: 'pending',
+    workingSteps: [
+      'Connecting to calendar...',
+      'Fetching tomorrow\'s events...',
+      'Extracting meeting details...',
+    ],
   },
   {
     id: '3',
     label: "Look up John's email address",
     confidence: 'medium',
     status: 'pending',
+    workingSteps: [
+      'Searching contacts...',
+      'Found multiple matches...',
+    ],
     clarification: {
       question: 'Which John?',
       options: [
@@ -52,5 +67,10 @@ export const initialTasks: Task[] = [
     confidence: 'low',
     status: 'pending',
     dependsOn: ['1', '2', '3'],
+    workingSteps: [
+      'Composing final email...',
+      'Attaching meeting details...',
+      'Sending to recipient...',
+    ],
   },
 ];
