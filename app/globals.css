@@ -20,7 +20,7 @@ body {
 
 [contentEditable="true"]:empty::before {
   content: attr(data-placeholder);
-  color: white; /* neutral-500 */
+  color: #a3a3a3; /* neutral-400 */
   pointer-events: none;
 }
 

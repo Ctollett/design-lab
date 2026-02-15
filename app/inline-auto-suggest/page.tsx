@@ -110,7 +110,7 @@ function useSpinningText() {
             fragment.appendChild(document.createTextNode(before));
 
             const span = document.createElement("span");
-            span.className = "text-blue-600";
+            span.className = "text-orange-500";
             span.textContent = improved;
             fragment.appendChild(span);
 
@@ -138,7 +138,7 @@ export default function InlineAutoSuggest() {
   const { startSpinning, settleToText } = useSpinningText();
 
   const handleAccept = () => {
-    const span = document.querySelector(".text-blue-600");
+    const span = document.querySelector(".text-orange-500");
     if (!span) return;
 
     const textNode = document.createTextNode(span.textContent || "");
@@ -153,7 +153,7 @@ export default function InlineAutoSuggest() {
   };
 
   const handleReject = () => {
-    const span = document.querySelector(".text-blue-600");
+    const span = document.querySelector(".text-orange-500");
     if (!span) return;
 
     const textNode = document.createTextNode(selectedText || "");
@@ -171,7 +171,7 @@ export default function InlineAutoSuggest() {
     e.preventDefault();
 
     if (selectionRect) {
-      setButtonPosition({ top: selectionRect.top - 65, left: selectionRect.left });
+      setButtonPosition({ top: selectionRect.top - 50, left: selectionRect.left });
     }
 
     if (selectionRangeRef.current) {
@@ -233,8 +233,29 @@ export default function InlineAutoSuggest() {
 
   return (
     <LabCanvas bg="#f5f5f4">
-      <div className="relative w-full max-w-[500px] h-[350px] flex flex-col items-center justify-center p-4">
-          <div className="flex flex-col gap-4 mb-8">
+      <div className="relative w-full h-[350px] flex flex-col items-start justify-center p-4">
+        {/* Instruction label - positioned at top */}
+        <div className="absolute top-4 left-4 flex flex-row items-center gap-2 text-neutral-400">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9 4h6" />
+            <path d="M12 4v16" />
+            <path d="M9 20h6" />
+          </svg>
+          <span className="text-[10px] tracking-wide">
+            Select text to improve
+          </span>
+        </div>
+
+          <div className="flex flex-col gap-4 mb-8 w-full max-w-[600px]">
             <AnimatePresence>
               {selectionRect && status === "idle" && (
                 <motion.div
@@ -244,14 +265,15 @@ export default function InlineAutoSuggest() {
                   exit={buttonExit}
                   transition={buttonTransition}
                   onClick={handleAIButton}
-                  className="bg-neutral-800 text-white p-4 rounded-xl w-[48px] h-[48px] flex items-center justify-center shadow-lg cursor-pointer"
+                  className="bg-neutral-800 text-white p-2 rounded-lg w-[36px] h-[36px] flex items-center justify-center shadow-lg cursor-pointer"
                   style={{
                     position: "fixed",
-                    top: selectionRect.top - 65,
+                    top: selectionRect.top - 50,
                     left: selectionRect.left,
                   }}
+                  whileHover={{ scale: 1.08, y: -1 }}
                 >
-                  <AI style={{ width: 32, height: 32 }} />
+                  <AI style={{ width: 22, height: 22 }} />
                 </motion.div>
               )}
 
@@ -262,14 +284,14 @@ export default function InlineAutoSuggest() {
                   animate={buttonAnimate}
                   exit={buttonExit}
                   transition={buttonTransition}
-                  className="bg-neutral-400 opacity-50 text-white p-4 rounded-xl w-[48px] h-[48px] flex items-center justify-center shadow-lg"
+                  className="bg-neutral-400 opacity-50 text-white p-2 rounded-lg w-[36px] h-[36px] flex items-center justify-center shadow-lg"
                   style={{
                     position: "fixed",
                     top: buttonPosition.top,
                     left: buttonPosition.left,
                   }}
                 >
-                  <AI style={{ width: 32, height: 32 }} />
+                  <AI style={{ width: 22, height: 22 }} />
                 </motion.div>
               )}
 
@@ -280,36 +302,39 @@ export default function InlineAutoSuggest() {
                   animate={buttonAnimate}
                   exit={{ opacity: 0, y: -8, filter: "blur(5px)" }}
                   transition={buttonTransition}
-                  className="flex gap-2"
+                  className="flex gap-1.5"
                   style={{
                     position: "fixed",
-                    top: buttonPosition.top + 25,
+                    top: buttonPosition.top,
                     left: buttonPosition.left,
                   }}
                 >
-                  <div
+                  <motion.div
                     onClick={handleReject}
-                    className="bg-neutral-500 text-white p-4 rounded-xl w-[24px] h-[24px] flex items-center justify-center cursor-pointer shadow-lg"
+                    className="bg-neutral-500 text-white rounded-md w-[28px] h-[28px] flex items-center justify-center cursor-pointer shadow-md text-sm"
+                    whileHover={{ scale: 1.08, y: -1 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
                   >
                     ✕
-                  </div>
-                  <div
+                  </motion.div>
+                  <motion.div
                     onClick={handleAccept}
-                    className="bg-blue-500 text-white p-4 rounded-xl w-[24px] h-[24px] flex items-center justify-center cursor-pointer shadow-lg"
+                    className="bg-orange-500 text-white rounded-md w-[28px] h-[28px] flex items-center justify-center cursor-pointer shadow-md text-sm"
+                    whileHover={{ scale: 1.08, y: -1 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
                   >
                     ✓
-                  </div>
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
 
             <div
-              className="outline-none text-xl text-neutral-800"
+              className="outline-none text-xl text-neutral-800 w-full"
               contentEditable="true"
               suppressContentEditableWarning
-            >
-              Enter text here
-            </div>
+              data-placeholder="Enter text here..."
+            />
           </div>
         </div>
     </LabCanvas>
