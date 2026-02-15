@@ -247,9 +247,37 @@ export default function AdaptiveKnob() {
 
 
   return (
-    <LabCanvas>
-      <div className="flex flex-col justify-center items-center">
-      <svg width="200" height="120" viewBox="0 0 200 60">
+    <LabCanvas bg="linear-gradient(to bottom, #030304 0%, #030304 55%, #050507 85%, #070709 100%)">
+      <div className="flex flex-col items-start gap-3">
+        {/* Label */}
+        <div className="flex flex-row items-center gap-2 text-white/40">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="8" />
+            <line x1="12" y1="4" x2="12" y2="8" />
+          </svg>
+          <span className="text-[10px] tracking-wide">
+            Drag to turn knob
+          </span>
+        </div>
+
+      <div
+        className="flex flex-col justify-center items-center p-6 rounded-xl"
+        style={{
+          background: "linear-gradient(to bottom, #121215 0%, #0a0a0d 40%, #050507 100%)",
+          boxShadow: "inset 1px 0 0 rgba(255, 255, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.04), inset -1px -1px 0 rgba(0, 0, 0, 0.3), 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 4px transparent, 0 0 0 5px rgba(255, 255, 255, 0.04)",
+          border: "1px solid rgba(255, 255, 255, 0.04)",
+        }}
+      >
+      <svg width="200" height="120" viewBox="0 0 200 60" style={{ overflow: "visible" }}>
         <defs>
           <filter id="ledGlow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation={4 * glowIntensity} result="blur1"/>
@@ -305,8 +333,8 @@ export default function AdaptiveKnob() {
           style={{
             width: "160px",
             height: "160px",
-            background: "linear-gradient(145deg, #2a2a2a, #1a1a1a)",
-            boxShadow: `0 8px 32px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05), inset 0 4px 8px -6px rgba(0,255,102,${0.5 * glowIntensity}), inset 0 1px 2px -1px rgba(255,255,255,${0.6 * glowIntensity})`
+            background: "linear-gradient(135deg, #0a0a0a 0%, #101010 40%, #1a1a1a 100%)",
+            boxShadow: `0 8px 32px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.03), inset -2px -2px 4px rgba(255,255,255,0.02), inset 0 4px 8px -6px rgba(0,255,102,${0.5 * glowIntensity}), inset 0 1px 2px -1px rgba(255,255,255,${0.6 * glowIntensity})`
           }}
         >
         {/* Knob container */}
@@ -327,13 +355,20 @@ export default function AdaptiveKnob() {
             style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.8))" }}
           >
             <defs>
-              {/* Gradient for chrome highlight on scallops */}
+              {/* Gradient for chrome highlight on scallops - dark top-left to light bottom-right */}
               <linearGradient id="chromeHighlight" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform={`rotate(${-angle} 0.5 0.5)`}>
-                <stop offset="0%" stopColor="#1a1a1a" />
-                <stop offset="40%" stopColor="#1a1a1a" />
-                <stop offset="60%" stopColor="#4a4a4a" />
-                <stop offset="80%" stopColor="#888888" />
-                <stop offset="100%" stopColor="#aaaaaa" />
+                <stop offset="0%" stopColor="#0a0a0a" />
+                <stop offset="30%" stopColor="#151515" />
+                <stop offset="50%" stopColor="#2a2a2a" />
+                <stop offset="70%" stopColor="#4a4a4a" />
+                <stop offset="85%" stopColor="#6a6a6a" />
+                <stop offset="100%" stopColor="#888888" />
+              </linearGradient>
+              {/* Gradient for inner ring */}
+              <linearGradient id="innerRingGradient" x1="0%" y1="0%" x2="100%" y2="100%" gradientTransform={`rotate(${-angle} 0.5 0.5)`}>
+                <stop offset="0%" stopColor="#050505" />
+                <stop offset="50%" stopColor="#0a0a0a" />
+                <stop offset="100%" stopColor="#1a1a1a" />
               </linearGradient>
               {/* Mask for 6-lobe scalloped shape */}
               <mask id="scallopMask6">
@@ -367,11 +402,11 @@ export default function AdaptiveKnob() {
               cx="70"
               cy="70"
               r="48"
-              fill="#0a0a0a"
+              fill="url(#innerRingGradient)"
             />
           </svg>
 
-          {/* Dark brushed metal top */}
+          {/* Brushed metal top */}
           <div
             className="absolute rounded-full"
             style={{
@@ -379,19 +414,28 @@ export default function AdaptiveKnob() {
               left: "26px",
               width: "88px",
               height: "88px",
-              background: `conic-gradient(
-                from 0deg,
-                #1a1a1a,
-                #2a2a2a,
-                #1a1a1a,
-                #252525,
-                #1a1a1a,
-                #2a2a2a,
-                #1a1a1a,
-                #252525,
-                #1a1a1a
-              )`,
-              boxShadow: "inset 0 1px 2px rgba(255,255,255,0.08), inset 0 -2px 4px rgba(0,0,0,0.4)",
+              background: `
+                linear-gradient(
+                  135deg,
+                  rgba(0, 0, 0, 0.3) 0%,
+                  rgba(0, 0, 0, 0.05) 40%,
+                  rgba(255, 255, 255, 0.08) 70%,
+                  rgba(255, 255, 255, 0.12) 100%
+                ),
+                conic-gradient(
+                  from 0deg,
+                  #181818,
+                  #252525,
+                  #181818,
+                  #202020,
+                  #181818,
+                  #252525,
+                  #181818,
+                  #202020,
+                  #181818
+                )
+              `,
+              boxShadow: "inset -2px -2px 4px rgba(255,255,255,0.08), inset 2px 2px 6px rgba(0,0,0,0.4)",
             }}
           />
 
@@ -409,6 +453,7 @@ export default function AdaptiveKnob() {
         </div>
 
         </div>
+      </div>
       </div>
       </div>
     </LabCanvas>
