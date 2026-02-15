@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { initialTasks, prompt } from './data';
 import TaskCard from './components/TaskCard'
 import { LabCanvas } from "@/components";
@@ -7,6 +8,8 @@ import { LabCanvas } from "@/components";
 export default function ProgressiveConfidenceAgentTasks() {
   const [tasks, setTasks] = useState(initialTasks)
   const [receivingDropletId, setReceivingDropletId] = useState<string | null>(null)
+
+  const allTasksComplete = tasks.every(task => task.status === 'complete')
 
   function handleTaskComplete(taskId: string) {
     setTasks(prevTasks => {
@@ -72,6 +75,59 @@ export default function ProgressiveConfidenceAgentTasks() {
               )
             })}
           </ul>
+
+          <AnimatePresence>
+            {allTasksComplete && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+                className="flex items-center gap-3 -mt-4"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <linearGradient id="email-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#71717a">
+                        <animate attributeName="stop-color" values="#71717a;#d4d4d8;#a1a1aa;#71717a" dur="3s" repeatCount="indefinite" />
+                      </stop>
+                      <stop offset="50%" stopColor="#d4d4d8">
+                        <animate attributeName="stop-color" values="#d4d4d8;#f4f4f5;#d4d4d8;#a1a1aa" dur="3s" repeatCount="indefinite" />
+                      </stop>
+                      <stop offset="100%" stopColor="#a1a1aa">
+                        <animate attributeName="stop-color" values="#a1a1aa;#71717a;#d4d4d8;#a1a1aa" dur="3s" repeatCount="indefinite" />
+                      </stop>
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M3 8L10.89 13.26C11.2187 13.4793 11.6049 13.5963 12 13.5963C12.3951 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19Z"
+                    stroke="url(#email-gradient)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span
+                  className="text-[16px] font-medium"
+                  style={{
+                    background: 'linear-gradient(90deg, #71717a 0%, #d4d4d8 25%, #f4f4f5 50%, #d4d4d8 75%, #71717a 100%)',
+                    backgroundSize: '200% 100%',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    animation: 'shimmer 3s ease-in-out infinite',
+                  }}
+                >
+                  Email Sent
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </LabCanvas>
