@@ -40,3 +40,12 @@ body {
     background-position: -200% 0;
   }
 }
+
+/* Hide scrollbar for font list */
+.font-list {
+  scrollbar-width: none;
+}
+
+.font-list::-webkit-scrollbar {
+  display: none;
+}

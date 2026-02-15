@@ -66,7 +66,7 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
   return (
     <div
       className="w-screen h-screen flex items-center justify-center overflow-hidden p-4"
-      style={{ backgroundColor: bg || 'transparent' }}
+      style={{ background: bg || 'transparent' }}
     >
       {/* Safe area for lab content - 90% of viewport with max constraints */}
       <div className="w-[90vw] h-[90vh] max-w-[650px] max-h-[420px] flex items-center justify-center">
