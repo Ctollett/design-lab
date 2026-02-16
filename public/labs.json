@@ -27,6 +27,15 @@
       "codeFile": "app/inline-auto-suggest/page.tsx",
       "previewVideo": "/previews/inline-auto-suggest.mp4",
       "posterImage": "/posterimages/inline-auto-suggest.jpg"
+    },
+    {
+      "slug": "semantic-image-hover",
+      "title": "Semantic Image Hover",
+      "description": "AI-powered product discovery on hover",
+      "date": "2026-01-01",
+      "codeFile": "app/semantic-image-hover/page.tsx",
+      "previewVideo": "/previews/semantic-image-hover.mp4",
+      "posterImage": "/posterimages/semantic-image-hover.jpg"
     }
   ]
 }
