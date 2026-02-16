@@ -32,21 +32,47 @@ function useSpinningText() {
       node = walker.nextNode() || node;
     }
 
-    textNodeRef.current = node as Text;
-    originalTextRef.current = range.toString();
+    const textNode = node as Text;
+    const fullText = textNode.data;
+    const parent = textNode.parentElement;
 
+    // Calculate before/selected/after based on range offset
+    const before = fullText.slice(0, range.startOffset);
+    const selected = selectedText;
+    const after = fullText.slice(range.startOffset + selectedText.length);
+
+    // Create fragment with span for selected text
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(document.createTextNode(before));
+
+    const span = document.createElement("span");
+    span.style.color = "#999";
+    span.style.filter = "blur(2px)";
+    span.textContent = selected;
+    fragment.appendChild(span);
+
+    fragment.appendChild(document.createTextNode(after));
+
+    if (parent) {
+      parent.replaceChild(fragment, textNode);
+    }
+
+    // Update textNodeRef to point to the span's text node
+    textNodeRef.current = span.firstChild as Text;
+    originalTextRef.current = selected;
+
+    // Since we're now working with just the span's text, offset starts at 0
     const leadingSpaces = (selectedText.match(/^(\s*)/) || [""])[0].length;
     const trailingSpaces = (selectedText.match(/(\s*)$/) || [""])[0].length;
-    const contentStart = range.startOffset + leadingSpaces;
     const contentLength = selectedText.length - leadingSpaces - trailingSpaces;
 
-    startOffsetRef.current = contentStart;
+    startOffsetRef.current = leadingSpaces;
     selectionLengthRef.current = contentLength;
     phaseRef.current = "ramping-up";
 
     for (let i = 0; i < contentLength; i++) {
       const timeout = setTimeout(() => {
-        activeIndicesRef.current.add(contentStart + i);
+        activeIndicesRef.current.add(leadingSpaces + i);
       }, i * 20);
       timeoutsRef.current.push(timeout);
     }
@@ -74,6 +100,8 @@ function useSpinningText() {
       textNodeRef.current.data = before + text + after;
     }
 
+    
+
     timeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
     timeoutsRef.current = [];
     phaseRef.current = "ramping-down";
@@ -97,7 +125,8 @@ function useSpinningText() {
           phaseRef.current = "settled";
 
           if (textNodeRef.current && textNodeRef.current.parentNode) {
-            const parent = textNodeRef.current.parentNode;
+            const greySpan = textNodeRef.current.parentNode as HTMLElement;
+            const grandparent = greySpan.parentNode;
             const fullText = textNodeRef.current.data;
             const before = fullText.slice(0, startOffsetRef.current);
             const improved = fullText.slice(
@@ -115,7 +144,11 @@ function useSpinningText() {
             fragment.appendChild(span);
 
             fragment.appendChild(document.createTextNode(after));
-            parent.replaceChild(fragment, textNodeRef.current);
+
+            // Replace the grey span itself, not just its contents
+            if (grandparent) {
+              grandparent.replaceChild(fragment, greySpan);
+            }
 
             if (onSettled) onSettled();
           }
@@ -284,14 +317,70 @@ export default function InlineAutoSuggest() {
                   animate={buttonAnimate}
                   exit={buttonExit}
                   transition={buttonTransition}
-                  className="bg-neutral-400 opacity-50 text-white p-2 rounded-lg w-[36px] h-[36px] flex items-center justify-center shadow-lg"
+                  className="bg-neutral-800 text-white p-2 rounded-lg w-[36px] h-[36px] flex items-center justify-center shadow-lg"
                   style={{
                     position: "fixed",
                     top: buttonPosition.top,
                     left: buttonPosition.left,
                   }}
                 >
-                  <AI style={{ width: 22, height: 22 }} />
+                  <div className="relative w-[22px] h-[22px]">
+                    {/* Thin track circle */}
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="absolute inset-0"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="8"
+                        stroke="rgba(251, 146, 60, 0.15)"
+                        strokeWidth="1"
+                        fill="none"
+                      />
+                    </svg>
+                    {/* Spinning streak container */}
+                    <motion.div
+                      className="absolute inset-0"
+                      initial={{ rotate: 0 }}
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    >
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        className="absolute inset-0"
+                      >
+                        <defs>
+                          <linearGradient id="streakGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="rgba(255, 140, 0, 0)" />
+                            <stop offset="60%" stopColor="rgba(255, 140, 0, 0.4)" />
+                            <stop offset="85%" stopColor="rgba(255, 140, 0, 0.8)" />
+                            <stop offset="100%" stopColor="#ff8c00" />
+                          </linearGradient>
+                          <filter id="streakGlow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="1" result="blur" />
+                            <feMerge>
+                              <feMergeNode in="blur" />
+                              <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                          </filter>
+                        </defs>
+                        <path
+                          d="M 4 12 A 8 8 0 0 1 12 4"
+                          stroke="url(#streakGradient)"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          fill="none"
+                          filter="url(#streakGlow)"
+                        />
+                      </svg>
+                    </motion.div>
+                  </div>
                 </motion.div>
               )}
 
