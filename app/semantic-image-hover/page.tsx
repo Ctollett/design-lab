@@ -3,7 +3,6 @@
 import { LabCanvas } from "@/components";
 import { useState, useEffect, useRef } from 'react'
 import ProductCard from "./components/productCard";
-import { hover } from "framer-motion";
 import { productMap } from './product'
 
 
@@ -29,28 +28,24 @@ export default function SemanticImageHover() {
   const [loading, setLoading] = useState(false)
   const [hoveredSegment, setHoveredSegment] = useState<Segment | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+  const lastLookupRef = useRef<number>(0)
 
 
 
 useEffect(() => {
   const timeoutId = setTimeout(() => {
-    console.log("Delayed check - canvas:", canvasRef.current);
     const canvas = canvasRef.current
     if(!canvas) return
     const img = new Image()
     img.src = '/semantic-image-hover/segments/interior-map.png'
     img.onload = () => {
-      console.log("Label map loaded:", img.width, img.height);
       canvas.width = img.width;
       canvas.height = img.height;
       const context = canvas.getContext('2d')
       context?.drawImage(img, 0, 0);
     }
-    img.onerror = () => {
-      console.error("Failed to load label map");
-    }
   }, 0);
-  
+
   return () => clearTimeout(timeoutId);
 }, [])
 
@@ -73,6 +68,7 @@ useEffect(() => {
    load();
   },[])
 
+
   const handleMove = (e: React.MouseEvent<HTMLImageElement>) => {
     const mouseX = e.clientX;
     const mouseY = e.clientY;
@@ -84,12 +80,15 @@ useEffect(() => {
     const relativeX = mouseX - rect.left;
     const relativeY = mouseY - rect.top;
 
+    // Always update card position for smooth tracking
     if (cardRef.current) {
-  cardRef.current.style.transform = `translate(${mouseX - 12}px, ${mouseY - 12}px)`
+      cardRef.current.style.transform = `translate(${mouseX - 12}px, ${mouseY - 12}px)`
+    }
 
-
-}
-
+    // Throttle segment lookup to ~60fps
+    const now = performance.now()
+    if (now - lastLookupRef.current < 16) return
+    lastLookupRef.current = now
 
     if(segmentData == null) return
 
@@ -104,7 +103,6 @@ useEffect(() => {
     const segmentId = pixel?.data[0]
 
     const segment = segmentData.segments.find(s => s.id === segmentId)
-    console.log("segment:", segment?.label, "id:", segmentId)
     const hasProduct = segment && productMap[segment.label]
 
     if (hasProduct) {
@@ -112,24 +110,45 @@ useEffect(() => {
     } else {
       setHoveredSegment(null)
     }
-
   }
 
 
 
   return (
     <LabCanvas bg="#0a0a0a">
-      <div className="relative w-full max-w-[800px] flex flex-col items-center justify-center p-4">
+      <div className="relative w-full max-w-[800px] flex flex-col items-start justify-center gap-3 p-4">
+        {/* Instruction label */}
+        <div className="flex flex-row items-center gap-2 text-white/40">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+          <span className="text-[10px] tracking-wide">
+            Hover over objects to reveal info
+          </span>
+        </div>
+
         <div style={{pointerEvents: 'none'}}>
           <ProductCard segment={hoveredSegment} cardRef={cardRef}/>
         </div>
-    <img 
-  src="/semantic-image-hover/images/interior.jpg" 
-  alt="Interior"
-  ref={imageRef}
-  onMouseMove={handleMove}
-  style={{ cursor: 'none'}}
-/>
+        <img
+          src="/semantic-image-hover/images/interior.jpg"
+          alt="Interior"
+          ref={imageRef}
+          onMouseMove={handleMove}
+          className="rounded-xl"
+          style={{ cursor: 'none'}}
+        />
   
       </div>
     
