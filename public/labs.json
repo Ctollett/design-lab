@@ -7,8 +7,8 @@
       "description": "A spacial filtering interaction",
       "date": "2026-01-01",
       "codeFile": "app/spacial-filter/page.tsx",
-      "previewVideo": "/previews/spacial-filter.mp4?v=2",
-      "posterImage": "/posterimages/spacial-filter.jpg?v=2"
+      "previewVideo": "/previews/spacial-filter.mp4?v=3",
+      "posterImage": "/posterimages/spacial-filter.jpg?v=3"
     },
     {
       "slug": "adaptive-knob",
@@ -16,8 +16,8 @@
       "description": "An adaptive knob control",
       "date": "2026-01-01",
       "codeFile": "app/adaptive-knob/page.tsx",
-      "previewVideo": "/previews/adaptive-knob.mp4?v=2",
-      "posterImage": "/posterimages/adaptive-knob.jpg?v=2"
+      "previewVideo": "/previews/adaptive-knob.mp4?v=3",
+      "posterImage": "/posterimages/adaptive-knob.jpg?v=3"
     },
     {
       "slug": "inline-auto-suggest",
