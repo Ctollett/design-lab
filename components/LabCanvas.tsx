@@ -8,16 +8,17 @@ import { Suspense } from 'react';
  *
  * This provides a consistent canvas that fits within the portfolio iframe.
  *
- * Portfolio iframe dimensions: ~700px wide × 450px tall
+ * Portfolio iframe dimensions: 580px wide × 450px tall
+ * (Portfolio body is max-w-[628px] with px-6 padding = 580px content area)
  *
  * GUIDELINES FOR BUILDING LABS:
- * - Design your lab to fit within 90vh × 90vw (leaving padding)
+ * - Design your lab to fit within ~550px × 420px (leaving padding)
  * - Use percentage-based or viewport-relative sizing
- * - Avoid fixed pixel sizes larger than ~600px × 400px
+ * - Avoid fixed pixel sizes larger than ~520px × 400px
  * - The canvas automatically centers content
  *
  * PREVIEW MODE:
- * - Add ?preview to the URL to render at exactly 700×450
+ * - Add ?preview to the URL to render at portfolio size with bleed
  * - Use this mode for consistent screen recordings
  * - Example: /spacial-filter?preview
  */
@@ -68,8 +69,8 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
       className="w-screen h-screen flex items-center justify-center overflow-hidden p-4"
       style={{ background: bg || 'transparent' }}
     >
-      {/* Safe area for lab content - 90% of viewport with max constraints */}
-      <div className="w-[90vw] h-[90vh] max-w-[680px] max-h-[430px] flex items-center justify-center">
+      {/* Safe area for lab content - matches portfolio iframe (580x450 minus padding) */}
+      <div className="w-[90vw] h-[90vh] max-w-[550px] max-h-[420px] flex items-center justify-center">
         {children}
       </div>
     </div>
