@@ -69,7 +69,7 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
       style={{ background: bg || 'transparent' }}
     >
       {/* Safe area for lab content - 90% of viewport with max constraints */}
-      <div className="w-[90vw] h-[90vh] max-w-[650px] max-h-[420px] flex items-center justify-center">
+      <div className="w-[90vw] h-[90vh] max-w-[680px] max-h-[430px] flex items-center justify-center">
         {children}
       </div>
     </div>
