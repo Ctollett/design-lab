@@ -36,6 +36,15 @@
       "codeFile": "app/semantic-image-hover/page.tsx",
       "previewVideo": "/previews/semantic-image-hover.mp4",
       "posterImage": "/posterimages/semantic-image-hover.jpg"
+    },
+    {
+      "slug": "progressive-confidence-agent-tasks",
+      "title": "Progressive Agent Tasks",
+      "description": "Confidence-based progressive task completion",
+      "date": "2026-01-01",
+      "codeFile": "app/progressive-confidence-agent-tasks/page.tsx",
+      "previewVideo": "/previews/progressive-agent-task.mp4",
+      "posterImage": "/posterimages/progressive-agent-task.jpg"
     }
   ]
 }
