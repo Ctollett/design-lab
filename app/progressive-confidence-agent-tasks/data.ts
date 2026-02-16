@@ -70,7 +70,14 @@ export const initialTasks: Task[] = [
     workingSteps: [
       'Composing final email...',
       'Attaching meeting details...',
-      'Sending to recipient...',
+      'Ready to send...',
     ],
+    clarification: {
+      question: 'Send now?',
+      options: [
+        { id: 'preview', label: 'View Preview' },
+        { id: 'send', label: 'Send Email' },
+      ],
+    },
   },
 ];

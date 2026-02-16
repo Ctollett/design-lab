@@ -41,6 +41,26 @@ export default function ProgressiveConfidenceAgentTasks() {
         style={{ background: 'linear-gradient(203deg, rgba(0, 0, 0, 1) 0%, rgba(20, 23, 23, 1) 100%)' }}
       />
       <div className='flex flex-col gap-8 relative'>
+        {/* Label */}
+        <div className="flex flex-row items-center gap-2 text-white/40">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <span className="text-[10px] tracking-wide">
+            Non-interactive preview
+          </span>
+        </div>
+
         <div
           className="p-[1px] rounded-xl"
           style={{
@@ -82,11 +102,12 @@ export default function ProgressiveConfidenceAgentTasks() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-                className="flex items-center gap-3 -mt-4"
+                className="flex items-center gap-4 -mt-4"
               >
-                <svg
-                  width="20"
-                  height="20"
+                <div className="w-[12px] flex justify-center" style={{ overflow: 'visible' }}>
+                  <svg
+                    width="20"
+                    height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +132,8 @@ export default function ProgressiveConfidenceAgentTasks() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
-                </svg>
+                  </svg>
+                </div>
                 <span
                   className="text-[16px] font-medium"
                   style={{

@@ -124,26 +124,40 @@ export default function LiquidCircle({ progress, status, size = 12, sloshing = f
           strokeWidth="1"
         />
 
-        {/* Falling droplet - only shown when receiving */}
+        {/* Falling droplet with blue neon glow - starts from connector line */}
         {receivingDroplet && (
-          <motion.path
-            fill={`url(#${clipId}-liquid)`}
-            initial={{
-              d: "M 12 -34 Q 14 -30, 14.5 -27 Q 15 -24, 12 -22 Q 9 -24, 9.5 -27 Q 10 -30, 12 -34 Z",
-            }}
-            animate={{
-              d: [
-                "M 12 -34 Q 14 -30, 14.5 -27 Q 15 -24, 12 -22 Q 9 -24, 9.5 -27 Q 10 -30, 12 -34 Z",
-                "M 12 14 Q 14 16, 14.5 17 Q 15 18, 12 19 Q 9 18, 9.5 17 Q 10 16, 12 14 Z",
-                "M 12 17 Q 16 18, 18 19 Q 18 20, 12 20 Q 6 20, 6 19 Q 8 18, 12 17 Z",
-              ],
-            }}
-            transition={{
-              duration: 0.5,
-              times: [0, 0.7, 1],
-              ease: [0.4, 0, 1, 1],
-            }}
-          />
+          <>
+            <defs>
+              <filter id={`${clipId}-neon`} x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="1.5" result="blur1" />
+                <feGaussianBlur stdDeviation="3" result="blur2" />
+                <feMerge>
+                  <feMergeNode in="blur2" />
+                  <feMergeNode in="blur1" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <motion.path
+              fill="#60a5fa"
+              style={{ filter: 'drop-shadow(0 0 3px #3b82f6) drop-shadow(0 0 6px #60a5fa)' }}
+              initial={{
+                d: "M 12 -90 Q 14 -86, 14.5 -83 Q 15 -80, 12 -78 Q 9 -80, 9.5 -83 Q 10 -86, 12 -90 Z",
+              }}
+              animate={{
+                d: [
+                  "M 12 -90 Q 14 -86, 14.5 -83 Q 15 -80, 12 -78 Q 9 -80, 9.5 -83 Q 10 -86, 12 -90 Z",
+                  "M 12 14 Q 14 16, 14.5 17 Q 15 18, 12 19 Q 9 18, 9.5 17 Q 10 16, 12 14 Z",
+                  "M 12 17 Q 16 18, 18 19 Q 18 20, 12 20 Q 6 20, 6 19 Q 8 18, 12 17 Z",
+                ],
+              }}
+              transition={{
+                duration: 0.55,
+                times: [0, 0.75, 1],
+                ease: [0.4, 0, 1, 1],
+              }}
+            />
+          </>
         )}
 
         {/* Single wave element - always rendered, never unmounts */}

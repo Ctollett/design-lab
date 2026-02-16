@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Task, ClarificationOption } from '../data';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import LiquidCircle from './LiquidCircle';
 
 interface TaskCardProps {
@@ -106,9 +106,22 @@ export default function TaskCard({ task, onClarify, onComplete, showConnector = 
             />
           </div>
 
-          {/* Connector spacer - the actual drop animation is in LiquidCircle */}
+          {/* Light trail connector */}
           {showConnector && connectorActive && (
-            <div className='h-[44px] mt-1' />
+            <div className='relative h-[44px] mt-1 w-[12px] flex justify-center' style={{ overflow: 'visible' }}>
+              {/* Faint persistent line */}
+              <motion.div
+                className="absolute w-[1px] h-full"
+                initial={{ opacity: 0, scaleY: 0 }}
+                animate={{ opacity: 0.2, scaleY: 1 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                style={{
+                  background: 'linear-gradient(to bottom, rgba(148, 163, 184, 0.4), rgba(148, 163, 184, 0.1))',
+                  transformOrigin: 'top',
+                }}
+              />
+
+            </div>
           )}
         </div>
 
