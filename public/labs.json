@@ -24,7 +24,9 @@
       "title": "Inline Auto Suggest",
       "description": "Inline auto-suggestion interaction",
       "date": "2026-01-01",
-      "codeFile": "app/inline-auto-suggest/page.tsx"
+      "codeFile": "app/inline-auto-suggest/page.tsx",
+      "previewVideo": "/previews/inline-auto-suggest.mp4",
+      "posterImage": "/posterimages/inline-auto-suggest.jpg"
     }
   ]
 }
