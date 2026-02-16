@@ -310,7 +310,7 @@ export default function SpatialFilter() {
             {/* Canvas - fixed size that fits within LabCanvas */}
             <div
               ref={canvasRef}
-              className="relative flex h-[300px] w-[300px] rounded-[8px]"
+              className="relative flex h-[260px] w-[260px] rounded-[8px]"
               style={{
                 backgroundColor: "rgba(5, 7, 9, 0.07)",
                 border: "2px solid rgba(45, 45, 45, 0.90)",
@@ -481,7 +481,7 @@ export default function SpatialFilter() {
         </div>
 
         {/* Font list sidebar */}
-        <div className="flex flex-col justify-start items-start h-[300px] w-[140px] gap-2 pl-3">
+        <div className="flex flex-col justify-start items-start h-[260px] w-[120px] gap-2 pl-3">
           {/* Font count */}
           <span className="text-white/40 text-[10px] px-2">
             {filteredFonts.length} {filteredFonts.length === 1 ? "font" : "fonts"}
