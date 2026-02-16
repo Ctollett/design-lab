@@ -270,14 +270,14 @@ export default function AdaptiveKnob() {
         </div>
 
       <div
-        className="flex flex-col justify-center items-center p-6 rounded-xl"
+        className="flex flex-col justify-center items-center p-4 rounded-xl"
         style={{
           background: "linear-gradient(to bottom, #121215 0%, #0a0a0d 40%, #050507 100%)",
           boxShadow: "inset 1px 0 0 rgba(255, 255, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.04), inset -1px -1px 0 rgba(0, 0, 0, 0.3), 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 4px transparent, 0 0 0 5px rgba(255, 255, 255, 0.04)",
           border: "1px solid rgba(255, 255, 255, 0.04)",
         }}
       >
-      <svg width="200" height="120" viewBox="0 0 200 60" style={{ overflow: "visible" }}>
+      <svg width="160" height="100" viewBox="0 0 200 60" style={{ overflow: "visible" }}>
         <defs>
           <filter id="ledGlow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation={4 * glowIntensity} result="blur1"/>
@@ -300,14 +300,14 @@ export default function AdaptiveKnob() {
       </svg>
 
       {/* Knob with tick marks */}
-      <div className="relative select-none" style={{ width: "220px", height: "220px" }}>
+      <div className="relative select-none" style={{ width: "180px", height: "180px" }}>
         {/* Tick mark labels */}
         {['SIN', 'TRI', 'SAW', 'SQR'].map((label, i) => {
           const tickAngle = snapPoints[i]
           const radians = (tickAngle - 90) * (Math.PI / 180)
-          const radius = 100
-          const x = Math.cos(radians) * radius + 110
-          const y = Math.sin(radians) * radius + 110
+          const radius = 82
+          const x = Math.cos(radians) * radius + 90
+          const y = Math.sin(radians) * radius + 90
           const isActive = snappedTo.current === snapPoints[i] && glowIntensity > 0.5
           return (
             <span
@@ -331,8 +331,8 @@ export default function AdaptiveKnob() {
         <div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center rounded-full"
           style={{
-            width: "160px",
-            height: "160px",
+            width: "130px",
+            height: "130px",
             background: "linear-gradient(135deg, #0a0a0a 0%, #101010 40%, #1a1a1a 100%)",
             boxShadow: `0 8px 32px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.03), inset -2px -2px 4px rgba(255,255,255,0.02), inset 0 4px 8px -6px rgba(0,255,102,${0.5 * glowIntensity}), inset 0 1px 2px -1px rgba(255,255,255,${0.6 * glowIntensity})`
           }}
@@ -343,14 +343,14 @@ export default function AdaptiveKnob() {
           onMouseDown={handleMouseDown}
           className="relative cursor-grab active:cursor-grabbing select-none"
           style={{
-            width: "140px",
-            height: "140px",
+            width: "115px",
+            height: "115px",
             transform: `rotate(${angle}deg)`,
           }}
         >
           {/* Faceted outer edge - SVG */}
           <svg
-            viewBox="0 0 140 140"
+            viewBox="0 0 115 115"
             className="absolute inset-0 w-full h-full"
             style={{ filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.8))" }}
           >
@@ -372,17 +372,17 @@ export default function AdaptiveKnob() {
               </linearGradient>
               {/* Mask for 6-lobe scalloped shape */}
               <mask id="scallopMask6">
-                <circle cx="70" cy="70" r="62" fill="white" />
+                <circle cx="57.5" cy="57.5" r="51" fill="white" />
                 {/* 6 deep scallops */}
                 {[0, 60, 120, 180, 240, 300].map((rot) => (
                   <ellipse
                     key={rot}
-                    cx="70"
-                    cy="4"
-                    rx="18"
-                    ry="14"
+                    cx="57.5"
+                    cy="3"
+                    rx="15"
+                    ry="11"
                     fill="black"
-                    transform={`rotate(${rot} 70 70)`}
+                    transform={`rotate(${rot} 57.5 57.5)`}
                   />
                 ))}
               </mask>
@@ -390,18 +390,18 @@ export default function AdaptiveKnob() {
 
             {/* Main knob body - black with chrome edge highlight */}
             <circle
-              cx="70"
-              cy="70"
-              r="62"
+              cx="57.5"
+              cy="57.5"
+              r="51"
               fill="url(#chromeHighlight)"
               mask="url(#scallopMask6)"
             />
 
             {/* Inner dark ring/bevel */}
             <circle
-              cx="70"
-              cy="70"
-              r="48"
+              cx="57.5"
+              cy="57.5"
+              r="39"
               fill="url(#innerRingGradient)"
             />
           </svg>
@@ -410,10 +410,10 @@ export default function AdaptiveKnob() {
           <div
             className="absolute rounded-full"
             style={{
-              top: "26px",
-              left: "26px",
-              width: "88px",
-              height: "88px",
+              top: "21px",
+              left: "21px",
+              width: "73px",
+              height: "73px",
               background: `
                 linear-gradient(
                   135deg,
@@ -443,10 +443,10 @@ export default function AdaptiveKnob() {
           <div
             className="absolute"
             style={{
-              width: "3px",
-              height: "16px",
-              top: "28px",
-              left: "68.5px",
+              width: "2px",
+              height: "13px",
+              top: "23px",
+              left: "56.5px",
               background: "linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)",
             }}
           />
