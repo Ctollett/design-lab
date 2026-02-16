@@ -34,30 +34,20 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
   const isPreview = searchParams.has('preview');
 
   if (isPreview) {
-    // Preview mode with guides for recording
-    // Larger than portfolio container (580x450) with 24px bleed on each side
-    const bleed = 24;
-    const width = 580 + bleed * 2;  // 628
-    const height = 450 + bleed * 2; // 498
+    // Preview mode - exact 628x450 viewport for recording, centered on screen
+    const width = 628;
+    const height = 450;
 
     return (
-      <div
-        className="w-screen h-screen flex items-center justify-center"
-        style={{ background: bg || 'transparent' }}
-      >
+      <div className="w-screen h-screen flex items-center justify-center bg-black">
         <div
-          className="relative flex items-center justify-center overflow-hidden"
+          className="flex items-center justify-center overflow-hidden"
           style={{
             width: `${width}px`,
             height: `${height}px`,
-            border: '2px dashed #ff4444',
+            background: bg || 'transparent',
           }}
         >
-          {/* Dimension label */}
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-[#ff4444] text-xs font-mono">
-            {width} × {height} ({bleed}px bleed)
-          </div>
-
           {children}
         </div>
       </div>
