@@ -115,7 +115,7 @@ useEffect(() => {
 
 
   return (
-    <LabCanvas bg="#0a0a0a">
+    <LabCanvas bg="linear-gradient(to bottom, #030304 0%, #050507 40%, #0a0a0c 70%, #0e0e10 100%)">
       <div className="relative w-full max-w-[800px] flex flex-col items-start justify-center gap-3 p-4">
         {/* Instruction label */}
         <div className="flex flex-row items-center gap-2 text-white/40">

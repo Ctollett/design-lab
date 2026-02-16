@@ -36,26 +36,26 @@ function LabCanvasInner({ children, bg }: LabCanvasProps) {
   if (isPreview) {
     // Preview mode with guides for recording
     // Larger than portfolio container (580x450) with 24px bleed on each side
-    // The extra black padding gets cropped by object-cover + rounded corners
     const bleed = 24;
     const width = 580 + bleed * 2;  // 628
     const height = 450 + bleed * 2; // 498
 
     return (
-      <div className="w-screen h-screen flex items-center justify-center" style={{ backgroundColor: '#1a1a1a' }}>
+      <div
+        className="w-screen h-screen flex items-center justify-center"
+        style={{ background: bg || 'transparent' }}
+      >
         <div
           className="relative flex items-center justify-center overflow-hidden"
           style={{
             width: `${width}px`,
             height: `${height}px`,
-            backgroundColor: bg || '#0a0a0a',
             border: '2px dashed #ff4444',
-            boxShadow: '0 0 0 9999px rgba(0,0,0,0.7)',
           }}
         >
           {/* Dimension label */}
           <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-[#ff4444] text-xs font-mono">
-            {width} × {height} (8px bleed)
+            {width} × {height} ({bleed}px bleed)
           </div>
 
           {children}
