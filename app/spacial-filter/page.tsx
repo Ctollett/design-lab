@@ -310,7 +310,7 @@ export default function SpatialFilter() {
             {/* Canvas - fixed size that fits within LabCanvas */}
             <div
               ref={canvasRef}
-              className="relative flex h-[260px] w-[260px] rounded-[8px]"
+              className="relative flex h-[220px] w-[220px] rounded-[8px]"
               style={{
                 backgroundColor: "rgba(5, 7, 9, 0.07)",
                 border: "2px solid rgba(45, 45, 45, 0.90)",
@@ -327,7 +327,7 @@ export default function SpatialFilter() {
                 onDragEnd={handleDragEnd}
                 onDrag={handleDrag}
                 ref={circleRef}
-                className="absolute z-40 cursor-pointer h-[60px] w-[60px] rounded-full border border-white/40 -translate-x-1/2 -translate-y-1/2"
+                className="absolute z-40 cursor-pointer h-[50px] w-[50px] rounded-full border border-white/40 -translate-x-1/2 -translate-y-1/2"
                 style={{
                   left: "50%",
                   top: "50%",
@@ -481,7 +481,7 @@ export default function SpatialFilter() {
         </div>
 
         {/* Font list sidebar */}
-        <div className="flex flex-col justify-start items-start h-[260px] w-[120px] gap-2 pl-3">
+        <div className="flex flex-col justify-start items-start h-[220px] w-[100px] gap-2 pl-3">
           {/* Font count */}
           <span className="text-white/40 text-[10px] px-2">
             {filteredFonts.length} {filteredFonts.length === 1 ? "font" : "fonts"}
