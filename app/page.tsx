@@ -8,6 +8,12 @@ const demos = [
     isRoot: true,
   },
   {
+    slug: "live-polish",
+    title: "Live Polish",
+    description: "Experiment canvas for the live polish tool",
+    isRoot: true,
+  },
+  {
     slug: "example",
     title: "Example Demo",
     description: "GSAP + Framer Motion showcase",
