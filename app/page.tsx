@@ -2,6 +2,18 @@ import Link from "next/link";
 
 const demos = [
   {
+    slug: "card-shelf",
+    title: "Card Shelf",
+    description: "Portrait cards scrolling horizontally at the bottom of the screen",
+    isRoot: true,
+  },
+  {
+    slug: "single-card-image-focus",
+    title: "Single Card Image Focus",
+    description: "Single card with image focus interaction",
+    isRoot: true,
+  },
+  {
     slug: "inline-auto-suggest",
     title: "Inline Auto-Suggest",
     description: "Text selection with ghost text rewrite suggestions",

@@ -23,6 +23,14 @@ const canela = localFont({
   variable: "--font-canela",
 });
 
+const mdui = localFont({
+  src: [
+    { path: "../fonts/MDUITrial-Regular.otf", weight: "400", style: "normal" },
+    { path: "../fonts/MDUITrial-SemiboldItalic.otf", weight: "600", style: "italic" },
+  ],
+  variable: "--font-mdui",
+});
+
 export const metadata: Metadata = {
   title: "Design Lab",
   description: "Interaction design experiments and demos",
@@ -42,7 +50,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${sohne.variable} ${canela.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${sohne.variable} ${canela.variable} ${mdui.variable} antialiased`}
       >
         {children}
       </body>

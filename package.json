@@ -11,14 +11,21 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@huggingface/transformers": "^3.8.1",
+    "@types/three": "^0.184.1",
     "canvas": "^3.2.1",
     "clsx": "^2.1.1",
+    "curtainsjs": "^8.1.6",
     "framer-motion": "^12.26.2",
     "gsap": "^3.14.2",
+    "lenis": "^1.3.23",
+    "lucide-react": "^1.14.0",
     "next": "16.1.3",
     "openai": "^6.16.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "ruun": "file:../../SpringSVG/packages/ruune",
+    "ruun-react": "file:../../SpringSVG/packages/ruune-react",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
