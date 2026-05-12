@@ -10,30 +10,35 @@ const CARDS = [
     src: "/retro-computers/a1000_pastel_blue.png",
     label: "1985",
     title: "Amiga 1000",
+    color: "#5B8DB8",
     body: "Commodore's flagship personal computer, the A1000 introduced multitasking and a graphical interface years ahead of its time.",
   },
   {
     src: "/retro-computers/apple_ii_pastel_mint.png",
     label: "1977",
     title: "Apple II",
+    color: "#4A9E7E",
     body: "One of the first mass-produced personal computers, the Apple II brought color graphics and an open architecture to the world.",
   },
   {
     src: "/retro-computers/bbc_micro_pastel_peach.png",
     label: "1981",
     title: "BBC Micro",
+    color: "#C07060",
     body: "Built for the BBC Computer Literacy Project, the Micro became a cornerstone of a generation's introduction to computing.",
   },
   {
     src: "/retro-computers/olivetti_programma_101_pastel_periwinkle.png",
     label: "1965",
     title: "Olivetti P101",
+    color: "#7070C4",
     body: "Often called the world's first personal computer, the Programma 101 brought programmable computing to the desktop.",
   },
   {
     src: "/retro-computers/xerox_alto_pastel_sage.png",
     label: "1973",
     title: "Xerox Alto",
+    color: "#5E9E6A",
     body: "The Alto pioneered the graphical user interface, mouse-driven navigation, and the WYSIWYG document model — ideas that changed everything.",
   },
 ];
@@ -105,19 +110,10 @@ const OVERLAY_FRAG = /* glsl */`
     // Brighten the midrange so it reads as frosted/etched glass, not just noise
     glass = smoothstep(0.25, 0.75, glass);
 
-    // Lens shadow — smooth dark band at edges, independent of texture
-    float shadow = mask * 0.38;
+    // Glass texture visible only at edges
+    float alpha = glass * mask * 0.12;
 
-    // Glass texture visible only at edges, very subtle
-    float glassAlpha = glass * mask * 0.09;
-
-    // Combine: shadow darkens, glass texture adds frosted look
-    float darkness = clamp(shadow + glassAlpha, 0.0, 1.0);
-
-    // Slight warm tint in shadowed areas (old glass amber)
-    vec3 color = mix(vec3(0.05, 0.03, 0.01), vec3(1.0), glass);
-
-    gl_FragColor = vec4(color * (1.0 - darkness), darkness);
+    gl_FragColor = vec4(vec3(glass), alpha);
   }
 `;
 
@@ -208,6 +204,9 @@ export default function SingleCardImageFocus() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const outerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const innerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const yearRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const vh = window.innerHeight;
@@ -307,7 +306,7 @@ export default function SingleCardImageFocus() {
       const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
       let velocity = 0;
       let scroll = 0;
-      let lastActive = 0;
+      let lastActive = -1;
       let rafId: number;
 
       lenis.on("scroll", (e: { scroll: number; velocity: number }) => {
@@ -325,6 +324,13 @@ export default function SingleCardImageFocus() {
 
         if (newActive !== lastActive) {
           lastActive = newActive;
+          if (titleRef.current) {
+            titleRef.current.textContent = CARDS[newActive].title;
+            titleRef.current.style.color = CARDS[newActive].color;
+          }
+          if (yearRef.current) {
+            yearRef.current.textContent = CARDS[newActive].label;
+          }
           for (let i = 0; i < PADDED.length; i++) {
             const inner = innerRefs.current[i];
             if (!inner) continue;
@@ -408,6 +414,56 @@ export default function SingleCardImageFocus() {
             overflow: "visible",
           }}
         >
+          {/* Left: label + year stacked */}
+          <div ref={labelRef} style={{
+            position: "absolute",
+            right: "calc(100% + 52px)",
+            top: "50%",
+            transform: "translateY(-50%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: 4,
+            pointerEvents: "none",
+          }}>
+            <span style={{
+              fontFamily: "var(--font-sohne), sans-serif",
+              fontSize: 15,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: currentTheme.text.primary,
+              whiteSpace: "nowrap",
+            }}>
+              model
+            </span>
+            <span ref={yearRef} style={{
+              fontFamily: "var(--font-sohne), sans-serif",
+              fontSize: 13,
+              letterSpacing: "0.08em",
+              color: currentTheme.text.muted,
+              whiteSpace: "nowrap",
+            }}>
+              {CARDS[0].label}
+            </span>
+          </div>
+
+          {/* Right model name */}
+          <div ref={titleRef} style={{
+            position: "absolute",
+            left: "calc(100% + 52px)",
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontFamily: "var(--font-canela), serif",
+            fontSize: 32,
+            fontWeight: 400,
+            color: CARDS[0].color,
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            transition: "color 0.5s ease",
+          }}>
+            {CARDS[0].title}
+          </div>
+
           {PADDED.map((card, i) => {
             const initDist = Math.abs(i - PADDING);
             const initScale = 1 - Math.min(initDist, 1) * 0.05;
