@@ -2,8 +2,24 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import AI from "../../images/noun-ai-7315703.svg";
+import { RuunSVG } from "ruun-react";
 import { LabCanvas } from "@/components";
+
+const PENCIL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+  <path d="m15 5 4 4"/>
+</svg>`
+
+const LOADER_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#FF6E00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M12 2v4"/>
+  <path d="m16.2 7.8 2.9-2.9"/>
+  <path d="M18 12h4"/>
+  <path d="m16.2 16.2 2.9 2.9"/>
+  <path d="M12 18v4"/>
+  <path d="m4.9 19.1 2.9-2.9"/>
+  <path d="M2 12h4"/>
+  <path d="m4.9 4.9 2.9 2.9"/>
+</svg>`
 
 type Status = "idle" | "loading" | "preview";
 
@@ -36,12 +52,10 @@ function useSpinningText() {
     const fullText = textNode.data;
     const parent = textNode.parentElement;
 
-    // Calculate before/selected/after based on range offset
     const before = fullText.slice(0, range.startOffset);
     const selected = selectedText;
     const after = fullText.slice(range.startOffset + selectedText.length);
 
-    // Create fragment with span for selected text
     const fragment = document.createDocumentFragment();
     fragment.appendChild(document.createTextNode(before));
 
@@ -57,11 +71,9 @@ function useSpinningText() {
       parent.replaceChild(fragment, textNode);
     }
 
-    // Update textNodeRef to point to the span's text node
     textNodeRef.current = span.firstChild as Text;
     originalTextRef.current = selected;
 
-    // Since we're now working with just the span's text, offset starts at 0
     const leadingSpaces = (selectedText.match(/^(\s*)/) || [""])[0].length;
     const trailingSpaces = (selectedText.match(/(\s*)$/) || [""])[0].length;
     const contentLength = selectedText.length - leadingSpaces - trailingSpaces;
@@ -99,8 +111,6 @@ function useSpinningText() {
       const after = original.slice(startOffsetRef.current + selectionLengthRef.current);
       textNodeRef.current.data = before + text + after;
     }
-
-    
 
     timeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
     timeoutsRef.current = [];
@@ -145,7 +155,6 @@ function useSpinningText() {
 
             fragment.appendChild(document.createTextNode(after));
 
-            // Replace the grey span itself, not just its contents
             if (grandparent) {
               grandparent.replaceChild(fragment, greySpan);
             }
@@ -168,6 +177,7 @@ export default function InlineAutoSuggest() {
   const [buttonPosition, setButtonPosition] = useState<{ top: number; left: number } | null>(null);
 
   const selectionRangeRef = useRef<Range | null>(null);
+  const isSubmittingRef = useRef(false);
   const { startSpinning, settleToText } = useSpinningText();
 
   const handleAccept = () => {
@@ -182,6 +192,8 @@ export default function InlineAutoSuggest() {
       parent.normalize();
     }
 
+    isSubmittingRef.current = false;
+    setButtonPosition(null);
     setStatus("idle");
   };
 
@@ -197,6 +209,8 @@ export default function InlineAutoSuggest() {
       parent.normalize();
     }
 
+    isSubmittingRef.current = false;
+    setButtonPosition(null);
     setStatus("idle");
   };
 
@@ -240,7 +254,7 @@ export default function InlineAutoSuggest() {
 
   useEffect(() => {
     const handleSelectionChange = () => {
-      if (status !== "idle") return;
+      if (status !== "idle" || isSubmittingRef.current) return;
 
       const selection = window.getSelection();
 
@@ -259,7 +273,7 @@ export default function InlineAutoSuggest() {
     return () => document.removeEventListener("selectionchange", handleSelectionChange);
   }, [status]);
 
-  const buttonTransition = { type: "spring" as const, stiffness: 500, damping: 18 };
+  const buttonTransition = { type: "spring" as const, stiffness: 120, damping: 20 };
   const buttonInitial = { opacity: 0, y: -8, filter: "blur(2px)" };
   const buttonAnimate = { opacity: 1, y: 0, filter: "blur(0px)" };
   const buttonExit = { opacity: 0, y: -8, filter: "blur(2px)" };
@@ -267,7 +281,6 @@ export default function InlineAutoSuggest() {
   return (
     <LabCanvas bg="#f5f5f4">
       <div className="relative w-full h-[350px] flex flex-col items-start justify-center p-4">
-        {/* Instruction label - positioned at top */}
         <div className="absolute top-4 left-4 flex flex-row items-center gap-2 text-neutral-400">
           <svg
             width="14"
@@ -290,97 +303,31 @@ export default function InlineAutoSuggest() {
 
           <div className="flex flex-col gap-4 mb-8 w-full max-w-[600px]">
             <AnimatePresence>
-              {selectionRect && status === "idle" && (
+              {((selectionRect && status === "idle") || status === "loading") && (
                 <motion.div
-                  key="idle-button"
+                  key="ai-button"
                   initial={buttonInitial}
                   animate={buttonAnimate}
                   exit={buttonExit}
                   transition={buttonTransition}
-                  onClick={handleAIButton}
-                  className="bg-neutral-800 text-white p-2 rounded-lg w-[36px] h-[36px] flex items-center justify-center shadow-lg cursor-pointer"
+                  onMouseDown={() => { isSubmittingRef.current = true; }}
+                  onClick={status === "idle" ? handleAIButton : undefined}
+                  className="p-2 rounded-lg w-[36px] h-[36px] flex items-center justify-center shadow-lg overflow-hidden"
                   style={{
                     position: "fixed",
-                    top: selectionRect.top - 50,
-                    left: selectionRect.left,
+                    top: buttonPosition ? buttonPosition.top : selectionRect ? selectionRect.top - 50 : 0,
+                    left: buttonPosition ? buttonPosition.left : selectionRect ? selectionRect.left : 0,
+                    cursor: status === "loading" ? "default" : "pointer",
+                    backgroundColor: '#28282B',
                   }}
-                  whileHover={{ scale: 1.08, y: -1 }}
+                  whileHover={status === "idle" ? { scale: 1.08, y: -1 } : undefined}
                 >
-                  <AI style={{ width: 22, height: 22 }} />
-                </motion.div>
-              )}
-
-              {status === "loading" && buttonPosition && (
-                <motion.div
-                  key="loading-button"
-                  initial={buttonInitial}
-                  animate={buttonAnimate}
-                  exit={buttonExit}
-                  transition={buttonTransition}
-                  className="bg-neutral-800 text-white p-2 rounded-lg w-[36px] h-[36px] flex items-center justify-center shadow-lg"
-                  style={{
-                    position: "fixed",
-                    top: buttonPosition.top,
-                    left: buttonPosition.left,
-                  }}
-                >
-                  <div className="relative w-[22px] h-[22px]">
-                    {/* Thin track circle */}
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      className="absolute inset-0"
-                    >
-                      <circle
-                        cx="12"
-                        cy="12"
-                        r="8"
-                        stroke="rgba(251, 146, 60, 0.15)"
-                        strokeWidth="1"
-                        fill="none"
-                      />
-                    </svg>
-                    {/* Spinning streak container */}
-                    <motion.div
-                      className="absolute inset-0"
-                      initial={{ rotate: 0 }}
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    >
-                      <svg
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        className="absolute inset-0"
-                      >
-                        <defs>
-                          <linearGradient id="streakGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="rgba(255, 140, 0, 0)" />
-                            <stop offset="60%" stopColor="rgba(255, 140, 0, 0.4)" />
-                            <stop offset="85%" stopColor="rgba(255, 140, 0, 0.8)" />
-                            <stop offset="100%" stopColor="#ff8c00" />
-                          </linearGradient>
-                          <filter id="streakGlow" x="-50%" y="-50%" width="200%" height="200%">
-                            <feGaussianBlur stdDeviation="1" result="blur" />
-                            <feMerge>
-                              <feMergeNode in="blur" />
-                              <feMergeNode in="SourceGraphic" />
-                            </feMerge>
-                          </filter>
-                        </defs>
-                        <path
-                          d="M 4 12 A 8 8 0 0 1 12 4"
-                          stroke="url(#streakGradient)"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          fill="none"
-                          filter="url(#streakGlow)"
-                        />
-                      </svg>
-                    </motion.div>
-                  </div>
+                  <RuunSVG
+                    from={PENCIL_SVG}
+                    to={LOADER_SVG}
+                    active={status === "loading"}
+                    className="w-[22px] h-[22px]"
+                  />
                 </motion.div>
               )}
 
@@ -399,20 +346,26 @@ export default function InlineAutoSuggest() {
                   }}
                 >
                   <motion.div
-                    onClick={handleReject}
-                    className="bg-neutral-500 text-white rounded-md w-[28px] h-[28px] flex items-center justify-center cursor-pointer shadow-md text-sm"
-                    whileHover={{ scale: 1.08, y: -1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
-                  >
-                    ✕
-                  </motion.div>
-                  <motion.div
                     onClick={handleAccept}
-                    className="bg-orange-500 text-white rounded-md w-[28px] h-[28px] flex items-center justify-center cursor-pointer shadow-md text-sm"
-                    whileHover={{ scale: 1.08, y: -1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                    className="rounded-lg w-[36px] h-[36px] flex items-center justify-center cursor-pointer shadow-lg text-sm text-white"
+                    style={{ backgroundColor: '#FF6E00' }}
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 120, damping: 20, delay: 0 }}
+                    whileHover={{ scale: 1.06, y: -1 }}
                   >
                     ✓
+                  </motion.div>
+                  <motion.div
+                    onClick={handleReject}
+                    className="rounded-lg w-[36px] h-[36px] flex items-center justify-center cursor-pointer shadow-lg text-sm"
+                    style={{ backgroundColor: '#cccccc', color: '#1a1a1a' }}
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 120, damping: 20, delay: 0.1 }}
+                    whileHover={{ scale: 1.06, y: -1 }}
+                  >
+                    ✕
                   </motion.div>
                 </motion.div>
               )}

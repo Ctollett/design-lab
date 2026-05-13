@@ -21,16 +21,19 @@
     "lucide-react": "^1.14.0",
     "next": "16.1.3",
     "openai": "^6.16.0",
+    "opentype.js": "^2.0.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "ruun": "file:../../SpringSVG/packages/ruune",
     "ruun-react": "file:../../SpringSVG/packages/ruune-react",
-    "three": "^0.184.0"
+    "three": "^0.184.0",
+    "troika-three-text": "^0.52.4"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/opentype.js": "^1.3.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

@@ -8,6 +8,12 @@ const demos = [
     isRoot: true,
   },
   {
+    slug: "font-flare",
+    title: "Font Flare",
+    description: "Font lens flare color frequency experiment",
+    isRoot: true,
+  },
+  {
     slug: "single-card-image-focus",
     title: "Single Card Image Focus",
     description: "Single card with image focus interaction",

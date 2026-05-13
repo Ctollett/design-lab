@@ -247,7 +247,7 @@ export default function AdaptiveKnob() {
 
 
   return (
-    <LabCanvas bg="linear-gradient(to bottom, #030304 0%, #030304 55%, #050507 85%, #070709 100%)">
+    <LabCanvas bg="rgb(216, 211, 202)">
       <div className="flex flex-col items-start gap-3">
         {/* Label */}
         <div className="flex flex-row items-center gap-2 text-white/40">
@@ -272,9 +272,8 @@ export default function AdaptiveKnob() {
       <div
         className="flex flex-col justify-center items-center p-4 rounded-xl"
         style={{
-          background: "linear-gradient(to bottom, #121215 0%, #0a0a0d 40%, #050507 100%)",
-          boxShadow: "inset 1px 0 0 rgba(255, 255, 255, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.04), inset -1px -1px 0 rgba(0, 0, 0, 0.3), 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 4px transparent, 0 0 0 5px rgba(255, 255, 255, 0.04)",
-          border: "1px solid rgba(255, 255, 255, 0.04)",
+          background: "#1F1E1C",
+          border: "1px solid #2a2a3a",
         }}
       >
       <svg width="160" height="100" viewBox="0 0 200 60" style={{ overflow: "visible" }}>

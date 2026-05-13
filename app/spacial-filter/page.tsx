@@ -481,7 +481,7 @@ export default function SpatialFilter() {
         </div>
 
         {/* Font list sidebar */}
-        <div className="flex flex-col justify-start items-start h-[220px] w-[100px] gap-2 pl-3">
+        <div className="flex flex-col justify-start items-start h-[220px] w-[172px] gap-2 pl-3">
           {/* Font count */}
           <span className="text-white/40 text-[10px] px-2">
             {filteredFonts.length} {filteredFonts.length === 1 ? "font" : "fonts"}
@@ -520,7 +520,7 @@ export default function SpatialFilter() {
                     >
                       <span
                         style={{ fontFamily: font.family }}
-                        className="text-white/70 text-xs w-full block truncate transition-all duration-150 group-hover:text-white group-hover:[text-shadow:0_0_6px_rgba(255,255,255,0.5),0_0_12px_rgba(220,225,255,0.3)]"
+                        className="text-white/70 text-xs w-full block whitespace-nowrap transition-all duration-150 group-hover:text-white group-hover:[text-shadow:0_0_6px_rgba(255,255,255,0.5),0_0_12px_rgba(220,225,255,0.3)]"
                       >
                         {font.name}
                       </span>
