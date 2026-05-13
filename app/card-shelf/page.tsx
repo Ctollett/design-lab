@@ -6,13 +6,17 @@ import { themes } from "@/lib/themes";
 import { animate, motionValue } from "framer-motion";
 import type * as THREE from "three";
 
-const theme = themes.linen;
+const theme = { ...themes.linen, bg: "#f8f5f0" };
 
 const CARDS = [
-  { src: "/card-shelf/shoegaze_street_lavender_blue.png",  location: "Shimokitazawa", city: "Tokyo",    year: "2001" },
-  { src: "/card-shelf/shoegaze_street_seafoam_mint.png",   location: "Shoreditch",    city: "London",   year: "1998" },
+  { src: "/card-shelf/shoegaze_street_lavender_blue.png",  location: "Shimokitazawa",  city: "Tokyo",    year: "2001" },
+  { src: "/card-shelf/shoegaze_street_seafoam_mint.png",   location: "Shoreditch",     city: "London",   year: "1998" },
   { src: "/card-shelf/shoegaze_street_peach_coral.png",    location: "Lower East Side", city: "New York", year: "2003" },
-  { src: "/card-shelf/shoegaze_street_butter_gold.png",    location: "Belleville",    city: "Paris",    year: "1999" },
+  { src: "/card-shelf/shoegaze_street_butter_gold.png",    location: "Belleville",     city: "Paris",    year: "1999" },
+  { src: "/card-shelf/shoegaze_magenta_rain.png",          location: "Rue de Rivoli",  city: "Paris",    year: "1997" },
+  { src: "/card-shelf/shoegaze_teal_reflection.png",       location: "Nishi-Shinjuku", city: "Tokyo",    year: "2000" },
+  { src: "/card-shelf/shoegaze_lavender_fog.png",          location: "Kurfürstendamm", city: "Berlin",   year: "1996" },
+  { src: "/card-shelf/shoegaze_coral_crossing.png",        location: "Canal Street",   city: "New York", year: "2002" },
 ];
 
 const CARD_COUNT = CARDS.length;
@@ -99,46 +103,40 @@ export default function CardShelf() {
         vec2 nearest = clamp(px, vec2(R), vec2(W - R, H - R));
         float cornerAlpha = 1.0 - smoothstep(R - 1.0, R + 1.0, length(px - nearest));
 
-        // Chromatic aberration — RGB split strongest at mid-transition
+        // Base texture
+        vec3 texColor = texture2D(uTexture, vUv).rgb;
+
+        // Chromatic aberration — peaks at mid-transition for a shoegaze bleed
         float midPeak = sin(uProgress * 3.14159);
-        float aberr = midPeak * 0.014;
-        float rSample = texture2D(uTexture, vUv + vec2(aberr,  0.0)).r;
-        float gSample = texture2D(uTexture, vUv).g;
-        float bSample = texture2D(uTexture, vUv - vec2(aberr,  0.0)).b;
-        vec3 texColor = mix(
-          texture2D(uTexture, vUv).rgb,
-          vec3(rSample, gSample, bSample),
-          midPeak
+        float aberr = midPeak * 0.013;
+        vec3 abColor = vec3(
+          texture2D(uTexture, vUv + vec2(aberr, 0.0)).r,
+          texColor.g,
+          texture2D(uTexture, vUv - vec2(aberr, 0.0)).b
         );
+        vec3 revealColor = mix(texColor, abColor, midPeak * 0.75);
+
         float luma = dot(texColor, vec3(0.299, 0.587, 0.114));
         vec3 grey = vec3(luma);
 
-        // Domain-warped liquid reveal
-        vec2 base = vUv * 2.5 + vec2(uSeed * 3.1, uSeed * 1.7);
-        float q1 = fbm(base + vec2(uTime * 0.06,  uTime * 0.04));
-        float q2 = fbm(base + vec2(1.7 + uTime * 0.05, 9.2 + uTime * 0.03));
+        // Large, blotchy blobs — low scale for big shapes, strong warp to deform them
+        vec2 base = vUv * 1.2 + vec2(uSeed * 3.1, uSeed * 1.7);
+        float q1 = fbm(base + vec2(uTime * 0.38, uTime * 0.26));
+        float q2 = fbm(base + vec2(1.7 + uTime * 0.30, 9.2 + uTime * 0.22));
         vec2 warp = vec2(q1, q2);
+        float n = fbm(vUv * 1.2 + warp * 2.8 + vec2(uSeed * 7.3, uSeed * 2.1));
 
-        float n = fbm(vUv * 2.8 + warp * 1.4 + vec2(uSeed * 7.3, uSeed * 2.1));
+        // Pulsating boundary — blobs breathe and ooze
+        float pulse = sin(uTime * 1.6 + uSeed * 4.1) * 0.10 * sin(uProgress * 3.14159);
 
-        // Grainy reveal edge — high-freq noise roughens the threshold boundary
-        float edgeNoise = hash(vUv * 220.0 + fract(uTime * 29.3)) * 2.0 - 1.0;
-        n += edgeNoise * 0.10 * midPeak;
+        // Grain adds texture to blob skin
+        float grain = hash(vUv * 120.0 + vec2(uTime * 47.0, uTime * 31.0));
+        float threshold = mix(n + pulse, grain, 0.22);
 
-        // Ripple rings: expand from center, peak at mid-transition
-        vec2 c = (vUv - vec2(0.5)) * vec2(W / H, 1.0);
-        float dist = length(c);
-        float rippleAmp = midPeak * 0.20;
-        float ripple = sin(dist * 20.0 - uTime * 6.0) * rippleAmp;
+        // Tighter edge = more defined blob boundaries
+        float reveal = smoothstep(threshold - 0.22, threshold + 0.22, uProgress);
 
-        float reveal = smoothstep(n + ripple - 0.28, n + ripple + 0.28, uProgress);
-
-        // Persistent film grain (always present)
-        float grain = hash(vUv * vec2(W * 0.6, H * 0.6) + fract(uTime * 41.0)) * 2.0 - 1.0;
-
-        vec3 color = mix(grey, texColor, reveal);
-        color += grain * 0.07;
-
+        vec3 color = mix(grey, revealColor, reveal);
         gl_FragColor = vec4(color, cornerAlpha * uOpacity);
       }
     `;
@@ -199,6 +197,7 @@ export default function CardShelf() {
       let snapIndex = Math.floor(LOOPS / 2) * CARD_COUNT;
       let pointerDown = false;
       let lastPointerX = 0;
+      let dragTarget = midScroll;
       let velocitySamples: number[] = [];
       let springAnim: ReturnType<typeof animate> | null = null;
       let lastActive = -1;
@@ -230,6 +229,7 @@ export default function CardShelf() {
       const onPointerDown = (e: PointerEvent) => {
         springAnim?.stop();
         pointerDown = true;
+        dragTarget = scrollMV.get();
         velocitySamples = [];
         lastPointerX = e.clientX;
         wrapper.setPointerCapture(e.pointerId);
@@ -239,8 +239,11 @@ export default function CardShelf() {
       const onPointerMove = (e: PointerEvent) => {
         if (!pointerDown) return;
         const delta = lastPointerX - e.clientX;
-        scrollMV.set(scrollMV.get() + delta);
-        velocitySamples.push(delta);
+        // Gentle velocity scaling — keeps sensitivity calm
+        const mult = 1.0 + Math.min(Math.abs(delta) / 20, 0.6);
+        const scaled = delta * mult;
+        dragTarget += scaled;
+        velocitySamples.push(scaled);
         if (velocitySamples.length > 4) velocitySamples.shift();
         lastPointerX = e.clientX;
       };
@@ -253,7 +256,7 @@ export default function CardShelf() {
           ? velocitySamples.reduce((a, b) => a + b, 0) / velocitySamples.length
           : 0;
         velocitySamples = [];
-        const ni = Math.round((scrollMV.get() + avgVel * 18 + vw / 2 - firstCardCenter) / CARD_STEP);
+        const ni = Math.round((dragTarget + avgVel * 18 + vw / 2 - firstCardCenter) / CARD_STEP);
         snapIndex = ni;
         springTo(firstCardCenter + ni * CARD_STEP - vw / 2, avgVel * 80);
       };
@@ -266,7 +269,14 @@ export default function CardShelf() {
       wrapper.style.cursor = "grab";
 
       function raf() {
-        globalTime += 0.016;
+        globalTime += 0.022;
+
+        // During drag: fluid pursuit of target
+        if (pointerDown) {
+          const current = scrollMV.get();
+          scrollMV.set(current + (dragTarget - current) * 0.16);
+        }
+
         const displayScroll = scrollMV.get();
         content.style.transform = `translateX(${-displayScroll.toFixed(2)}px)`;
 
@@ -302,7 +312,7 @@ export default function CardShelf() {
           const opacity = Math.max(0, 1 - distInCards * 0.3);
 
           const isFocused = i === focusedMeshIndex;
-          progresses[i] += ((isFocused ? 1.0 : 0.0) - progresses[i]) * (isFocused ? 0.032 : 0.12);
+          progresses[i] += ((isFocused ? 1.0 : 0.0) - progresses[i]) * (isFocused ? 0.014 : 0.10);
 
           const mesh = meshes[i];
           mesh.visible = true;
@@ -328,7 +338,7 @@ export default function CardShelf() {
               if (yearRef.current) yearRef.current.textContent = card.year;
               if (indexRef.current) indexRef.current.textContent =
                 String(activeCard + 1).padStart(2, "0") + " / " + String(CARD_COUNT).padStart(2, "0");
-              if (ct) { ct.style.opacity = "1"; ct.style.transform = "translateX(-50%) translateY(0px)"; }
+if (ct) { ct.style.opacity = "1"; ct.style.transform = "translateX(-50%) translateY(0px)"; }
             }, 120);
           }
           lastNearestIndex = nearestIndex;
