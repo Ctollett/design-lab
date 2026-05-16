@@ -3,29 +3,41 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
-// --- Stable waveform (generated once, never changes) ---
-const BAR_COUNT = 78;
-const BARS: number[] = Array.from({ length: BAR_COUNT }, (_, i) => {
-  const t = i / BAR_COUNT;
-  const a = Math.abs(Math.sin(t * Math.PI * 5.7 + 0.3)) * 0.55;
-  const b = Math.abs(Math.sin(t * Math.PI * 12.4 + 1.1)) * 0.28;
-  return Math.min(1, a + b + 0.07);
+const LINE_W = 1;
+const LINE_GAP = 1;
+const LINE_COUNT = 234;
+const BARS: number[] = Array.from({ length: LINE_COUNT }, (_, i) => {
+  const t = i / LINE_COUNT;
+  const env = 0.25 + 0.75 * Math.pow(Math.sin(t * Math.PI), 0.6);
+  const a = Math.abs(Math.sin(t * Math.PI * 38.3 + 0.7)) * 0.45;
+  const b = Math.abs(Math.sin(t * Math.PI * 17.1 + 2.3)) * 0.32;
+  const c = Math.abs(Math.sin(t * Math.PI * 7.2 + 1.1)) * 0.23;
+  return Math.min(1, env * (a + b + c) + 0.04);
 });
 
-const TOTAL_SEC = 247; // 4:07
+const TOTAL_SEC = 247;
 const WAVEFORM_H = 88;
-const BAR_W = 4;
-const BAR_GAP = 2;
-const WAVEFORM_W = BAR_COUNT * (BAR_W + BAR_GAP);
+const BAR_W = LINE_W;
+const BAR_GAP = LINE_GAP;
+const WAVEFORM_W = LINE_COUNT * (LINE_W + LINE_GAP); // 468px
 
-// Dot grid constants — Nothing Phone / Braun LED matrix aesthetic
-const DOT_R = 2;      // 4px diameter
-const DOT_STRIDE = 7; // center-to-center vertical spacing
-const DOT_ROWS = 11;  // odd so there's a true center row
-const DOT_MID = 5;    // center row index (0-indexed)
-const DOT_START_Y = WAVEFORM_H / 2 - DOT_MID * DOT_STRIDE; // = 9
-const REEL_SIZE = 88;
-const MAX_DRAG = 180; // px → ±4× rate
+const REEL_SIZE = 128;
+const WF_CENTER_Y = WAVEFORM_H / 2;
+const WF_MAX_AMP = WAVEFORM_H / 2 - 6;
+const MAX_DRAG = 180;
+
+// Blob geometry
+const BLOB_W = 190;
+const BLOB_H = 96;
+const BLOB_CX = BLOB_W / 2; // 95
+const BLOB_CY = BLOB_H / 2; // 48
+const MAIN_D = 52;
+const SEC_D = 30;
+const BRIDGE_H = 14;
+const MAX_OFFSET = 50;
+
+// Reel row slightly wider than card so reels extend naturally
+const REEL_ROW_W = WAVEFORM_W + 80; // 548px
 
 function pad2(n: number) {
   return String(Math.floor(n)).padStart(2, "0");
@@ -38,103 +50,97 @@ function fmtTime(sec: number) {
   return `${pad2(m)}:${pad2(s)}.${pad2(ms)}`;
 }
 
-// Tape reel — SVG with wound tape mass, spokes, hub
+function RewindIcon({ active }: { active: boolean }) {
+  const c = active ? "#6B7A5A" : "#404A3C";
+  return (
+    <svg
+      width={16} height={12} viewBox="0 0 16 12" fill="none"
+      style={{ opacity: active ? 1 : 0.35, transition: "opacity 0.2s ease" }}
+    >
+      <polyline points="15,1 9,6 15,11" stroke={c} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points="8,1 2,6 8,11" stroke={c} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function FastForwardIcon({ active }: { active: boolean }) {
+  const c = active ? "#6B7A5A" : "#404A3C";
+  return (
+    <svg
+      width={16} height={12} viewBox="0 0 16 12" fill="none"
+      style={{ opacity: active ? 1 : 0.35, transition: "opacity 0.2s ease" }}
+    >
+      <polyline points="1,1 7,6 1,11" stroke={c} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points="8,1 14,6 8,11" stroke={c} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function Reel({
   size,
   fillRatio,
   rotation,
+  tapeColor = "#2A3028",
 }: {
   size: number;
   fillRatio: number;
   rotation: number;
+  tapeColor?: string;
 }) {
   const r = size / 2;
-  const outerR = r - 3;
-  const tapeR = outerR * (0.28 + fillRatio * 0.38);
-  const hubR = outerR * 0.13;
-  const SPOKES = 5;
+  const outerR = r - 4;
+  const hubR = outerR * 0.11;
+  const innerTapeR = outerR * 0.24;
+  const outerTapeR = outerR * (0.28 + fillRatio * 0.38);
+  const SPOKES = 3;
+  const RING_SPACING = 4;
+  const ringCount = Math.max(2, Math.round((outerTapeR - innerTapeR) / RING_SPACING) + 1);
+  const rings = Array.from({ length: ringCount }, (_, i) =>
+    innerTapeR + (i / Math.max(1, ringCount - 1)) * (outerTapeR - innerTapeR)
+  );
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      style={{ display: "block" }}
-    >
-      {/* Outer rim */}
-      <circle
-        cx={r}
-        cy={r}
-        r={outerR}
-        fill="none"
-        stroke="#1E1E1E"
-        strokeWidth={2.5}
-      />
-      {/* Tape mass (rotates) */}
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: "block" }}>
+      <circle cx={r} cy={r} r={outerR} fill="none" strokeWidth={2}
+        style={{ stroke: tapeColor, transition: "stroke 0.25s ease" }} />
       <g transform={`rotate(${rotation} ${r} ${r})`}>
-        <circle cx={r} cy={r} r={tapeR} fill="#131313" stroke="#272727" strokeWidth={1.5} />
-        <circle
-          cx={r}
-          cy={r}
-          r={tapeR * 0.84}
-          fill="none"
-          stroke="#1E1E1E"
-          strokeWidth={0.75}
-          strokeDasharray="3.5 2.5"
-        />
+        {rings.map((radius, i) => (
+          <circle key={i} cx={r} cy={r} r={radius} fill="none" stroke="#2A3028"
+            strokeWidth={i === ringCount - 1 ? 1.5 : 0.75}
+            style={{ opacity: 0.4 + (i / ringCount) * 0.6 }} />
+        ))}
         {Array.from({ length: SPOKES }).map((_, i) => {
           const a = (i / SPOKES) * Math.PI * 2;
           return (
-            <line
-              key={i}
-              x1={r + Math.cos(a) * hubR}
-              y1={r + Math.sin(a) * hubR}
-              x2={r + Math.cos(a) * tapeR * 0.9}
-              y2={r + Math.sin(a) * tapeR * 0.9}
-              stroke="#222222"
-              strokeWidth={1.5}
-              strokeLinecap="round"
-            />
+            <line key={i}
+              x1={r + Math.cos(a) * (hubR + 1)} y1={r + Math.sin(a) * (hubR + 1)}
+              x2={r + Math.cos(a) * (innerTapeR - 2)} y2={r + Math.sin(a) * (innerTapeR - 2)}
+              stroke="#2A3028" strokeWidth={1} strokeLinecap="round" />
           );
         })}
-        {/* Hub */}
-        <circle cx={r} cy={r} r={hubR} fill="#131313" stroke="#272727" strokeWidth={1} />
-        <circle cx={r} cy={r} r={hubR * 0.45} fill="#272727" />
+        <circle cx={r} cy={r} r={hubR} fill="none" stroke="#2A3028" strokeWidth={1.5} />
+        <circle cx={r} cy={r} r={2.5} fill="#2A3028" />
       </g>
     </svg>
   );
 }
 
-// Rate indicator bar — visual fill showing scrub rate magnitude + direction
 function RateBar({ rate }: { rate: number }) {
-  const pct = Math.abs(rate) / 4; // 0–1
+  const pct = Math.abs(rate) / 4;
   const isPos = rate >= 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, height: 4 }}>
-      {/* Left (reverse) fill — grows left from center */}
       <div style={{ flex: 1, height: "100%", display: "flex", justifyContent: "flex-end" }}>
         <motion.div
-          style={{
-            height: "100%",
-            background: "#B54A2A",
-            borderRadius: 2,
-            opacity: 0.7,
-          }}
+          style={{ height: "100%", background: "#6B7A5A", borderRadius: 2, opacity: 0.7 }}
           animate={{ width: isPos ? 0 : `${pct * 100}%` }}
           transition={{ type: "spring", stiffness: 400, damping: 32 }}
         />
       </div>
-      {/* Center dot */}
-      <div style={{ width: 3, height: 3, borderRadius: "50%", background: "#2C2C2C", flexShrink: 0 }} />
-      {/* Right (forward) fill */}
+      <div style={{ width: 3, height: 3, borderRadius: "50%", background: "#404A3C", flexShrink: 0 }} />
       <div style={{ flex: 1, height: "100%", display: "flex", justifyContent: "flex-start" }}>
         <motion.div
-          style={{
-            height: "100%",
-            background: "#B54A2A",
-            borderRadius: 2,
-            opacity: 0.7,
-          }}
+          style={{ height: "100%", background: "#6B7A5A", borderRadius: 2, opacity: 0.7 }}
           animate={{ width: isPos ? `${pct * 100}%` : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 32 }}
         />
@@ -154,15 +160,16 @@ export default function SpatialScrubber() {
   const animRef = useRef<number | null>(null);
   const lastTimeRef = useRef(0);
 
-  // Motion values for liquid blob
   const rawDX = useMotionValue(0);
-  const springDX = useSpring(rawDX, { stiffness: 220, damping: 18 });
+  const springDX = useSpring(rawDX, { stiffness: 180, damping: 9 });
 
-  // Secondary blob offset — hard cap at 44px so it NEVER separates from main
-  // (with stdDeviation=9 and combined radii ~29px, 44px is safely within connection range)
   const secOffsetX = useTransform(springDX, (dx) =>
-    Math.sign(dx) * Math.min(44, Math.abs(dx) * 0.42)
+    Math.sign(dx) * Math.min(MAX_OFFSET, Math.abs(dx) * 0.40)
   );
+
+  // Bridge connecting main blob to secondary — keeps goo fill at max stretch
+  const bridgeLeft = useTransform(secOffsetX, (x) => (x < 0 ? BLOB_CX + x : BLOB_CX));
+  const bridgeWidth = useTransform(secOffsetX, (x) => Math.max(0, Math.abs(x)));
 
   const startLoop = useCallback(() => {
     lastTimeRef.current = performance.now();
@@ -194,10 +201,8 @@ export default function SpatialScrubber() {
       const dx = e.clientX - grabX.current;
       rawDX.set(dx);
       const clampedDX = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dx));
-      const rateVal = (clampedDX / MAX_DRAG) * 4;
-      // 0.5 = half the track per second at max drag — very noticeable
-      scrubRateRef.current = (clampedDX / MAX_DRAG) * 0.5;
-      setRate(rateVal);
+      scrubRateRef.current = (clampedDX / MAX_DRAG) * 1.2;
+      setRate((clampedDX / MAX_DRAG) * 4);
     },
     [rawDX]
   );
@@ -223,16 +228,12 @@ export default function SpatialScrubber() {
 
   const currentTime = progress * TOTAL_SEC;
   const playheadX = progress * WAVEFORM_W;
-
-  // Tape reel fill ratios
   const leftFill = 0.12 + progress * 0.72;
   const rightFill = 0.84 - progress * 0.72;
-
-  // Reel rotation (degrees, proportional to progress)
   const reelAngle = progress * 900;
 
-  const MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
-  const SERIF = "'Fraunces', Georgia, serif";
+  const MONO = "var(--font-mdui), monospace";
+  const SUPPLY = "var(--font-pp-supply-mono), monospace";
 
   return (
     <div
@@ -242,7 +243,7 @@ export default function SpatialScrubber() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "#080808",
+        background: "#E3E8DC",
         userSelect: "none",
         cursor: dragging ? "grabbing" : "default",
         position: "relative",
@@ -251,22 +252,21 @@ export default function SpatialScrubber() {
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
     >
-      {/* SVG filter defs — gooey liquid effect */}
+      {/* Goo SVG filter */}
       <svg style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
         <defs>
           <filter id="liquid-goo" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
             <feColorMatrix
-              in="blur"
-              mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10"
+              in="blur" mode="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8"
               result="goo"
             />
           </filter>
         </defs>
       </svg>
 
-      {/* Series label — top right corner */}
+      {/* Series label */}
       <div
         style={{
           position: "fixed",
@@ -276,7 +276,7 @@ export default function SpatialScrubber() {
           fontSize: 9,
           letterSpacing: "0.18em",
           textTransform: "uppercase",
-          color: "#2C2C2C",
+          color: "#485A3E",
           lineHeight: 1.7,
           textAlign: "right",
         }}
@@ -287,12 +287,12 @@ export default function SpatialScrubber() {
       {/* Track title */}
       <p
         style={{
-          fontFamily: SERIF,
-          fontStyle: "italic",
-          fontWeight: 300,
-          fontSize: 20,
-          color: "#A89880",
-          letterSpacing: "-0.02em",
+          fontFamily: MONO,
+          fontWeight: 400,
+          fontSize: 13,
+          color: "#2A3824",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
           marginBottom: 48,
           marginTop: 0,
         }}
@@ -300,218 +300,241 @@ export default function SpatialScrubber() {
         Void Sessions — Track 07
       </p>
 
-      {/* Tape + Waveform row */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 28,
-        }}
-        onPointerDown={onPointerDown}
-      >
-        {/* Left reel (played tape — grows) */}
-        <div style={{ opacity: 0.9 }}>
-          <Reel size={REEL_SIZE} fillRatio={leftFill} rotation={reelAngle} />
-        </div>
-
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
         {/* Waveform card */}
         <div
           style={{
             position: "relative",
-            background: "#131313",
-            border: "1px solid #1E1E1E",
+            background: "#141812",
+            border: "1px solid #1E231C",
             borderRadius: 16,
             padding: "18px 20px 14px",
             cursor: dragging ? "grabbing" : "grab",
           }}
         >
-          {/* Track label */}
           <div
             style={{
-              fontFamily: MONO,
+              fontFamily: SUPPLY,
               fontSize: 8.5,
               letterSpacing: "0.20em",
               textTransform: "uppercase",
-              color: "#2C2C2C",
+              color: "#4A5848",
               marginBottom: 14,
             }}
           >
             NEW SESSION #032
           </div>
 
-          {/* Waveform + blob handle */}
-          <div
-            style={{
-              position: "relative",
-              width: WAVEFORM_W,
-              height: WAVEFORM_H,
-            }}
-          >
-            {/* SVG dot-matrix waveform */}
-            <svg
-              width={WAVEFORM_W}
-              height={WAVEFORM_H}
-              style={{ display: "block" }}
-            >
+          <div style={{ position: "relative", width: WAVEFORM_W, height: WAVEFORM_H }}>
+            <svg width={WAVEFORM_W} height={WAVEFORM_H} style={{ display: "block" }}>
               <defs>
                 <clipPath id="wf-past">
                   <rect x={0} y={0} width={playheadX} height={WAVEFORM_H} />
                 </clipPath>
               </defs>
-
-              {/* Ghost layer — full waveform, dim */}
-              {BARS.flatMap((h, col) => {
-                const cx = col * (BAR_W + BAR_GAP) + BAR_W / 2;
-                const litCount = Math.round(h * (DOT_MID + 0.5));
-                return Array.from({ length: DOT_ROWS }, (_, row) => {
-                  const cy = DOT_START_Y + row * DOT_STRIDE;
-                  const isLit = Math.abs(row - DOT_MID) < litCount;
-                  return (
-                    <circle
-                      key={`g${col}-${row}`}
-                      cx={cx}
-                      cy={cy}
-                      r={DOT_R}
-                      fill="#C8BEA8"
-                      opacity={isLit ? 0.16 : 0.04}
-                    />
-                  );
-                });
+              {BARS.map((h, i) => {
+                const x = i * (BAR_W + BAR_GAP);
+                const bh = Math.max(1, h * WF_MAX_AMP * 2);
+                return (
+                  <rect key={i} x={x} y={WF_CENTER_Y - bh / 2} width={BAR_W} height={bh}
+                    fill="#7A9470" opacity={0.18} />
+                );
               })}
-
-              {/* Active layer — bright, clipped to played region */}
               <g clipPath="url(#wf-past)">
-                {BARS.flatMap((h, col) => {
-                  const cx = col * (BAR_W + BAR_GAP) + BAR_W / 2;
-                  const litCount = Math.round(h * (DOT_MID + 0.5));
-                  return Array.from({ length: DOT_ROWS }, (_, row) => {
-                    const cy = DOT_START_Y + row * DOT_STRIDE;
-                    const isLit = Math.abs(row - DOT_MID) < litCount;
-                    return (
-                      <circle
-                        key={`a${col}-${row}`}
-                        cx={cx}
-                        cy={cy}
-                        r={DOT_R}
-                        fill="#C8BEA8"
-                        opacity={isLit ? 0.84 : 0.07}
-                      />
-                    );
-                  });
+                {BARS.map((h, i) => {
+                  const x = i * (BAR_W + BAR_GAP);
+                  const bh = Math.max(1, h * WF_MAX_AMP * 2);
+                  return (
+                    <rect key={i} x={x} y={WF_CENTER_Y - bh / 2} width={BAR_W} height={bh}
+                      fill="#7A9470" opacity={0.82} />
+                  );
                 })}
               </g>
-
-              {/* Playhead — red dot column */}
               <line
-                x1={playheadX}
-                y1={DOT_START_Y - DOT_R}
-                x2={playheadX}
-                y2={DOT_START_Y + (DOT_ROWS - 1) * DOT_STRIDE + DOT_R}
-                stroke="#B54A2A"
-                strokeWidth={1.5}
-                strokeLinecap="round"
-                opacity={0.9}
+                x1={playheadX} y1={4} x2={playheadX} y2={WAVEFORM_H - 4}
+                stroke="#6B7A5A" strokeWidth={1.5} strokeLinecap="round" opacity={0.9}
               />
             </svg>
-
-            {/* Liquid blob handle — gooey two-blob pull effect */}
-            <div
-              style={{
-                position: "absolute",
-                // Container: main (32px) + max offset (44px) + blur headroom (18px each side)
-                width: 160,
-                height: 64,
-                left: playheadX - 80,
-                top: "50%",
-                transform: "translateY(-50%)",
-                filter: "url(#liquid-goo)",
-                pointerEvents: "none",
-              }}
-            >
-              {/* Main blob — 32px, anchored at container center (playhead) */}
-              <div
-                style={{
-                  position: "absolute",
-                  left: 80 - 16,
-                  top: 32 - 16,
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  background: "#B54A2A",
-                }}
-              />
-              {/* Secondary blob — 22px, always stays within gooey range */}
-              <motion.div
-                style={{
-                  position: "absolute",
-                  left: 80,
-                  top: 32,
-                  width: 22,
-                  height: 22,
-                  borderRadius: "50%",
-                  background: "#B54A2A",
-                  translateX: "-50%",
-                  translateY: "-50%",
-                  x: secOffsetX,
-                }}
-              />
-            </div>
           </div>
 
-          {/* Rate direction bar */}
           <div style={{ marginTop: 10, marginBottom: 10, paddingLeft: 2, paddingRight: 2 }}>
             <RateBar rate={rate} />
           </div>
 
-          {/* Time and rate readouts */}
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              fontFamily: MONO,
+              fontFamily: SUPPLY,
               fontSize: 10,
               letterSpacing: "0.08em",
               fontVariantNumeric: "tabular-nums",
-              color: "#383838",
+              color: "#525C4E",
             }}
           >
-            <span style={{ color: "#565656" }}>{fmtTime(currentTime)}</span>
+            <span style={{ color: "#68756A" }}>{fmtTime(currentTime)}</span>
             <span
               style={{
-                color: Math.abs(rate) > 0.05 ? "#B54A2A" : "#2C2C2C",
+                color: Math.abs(rate) > 0.05 ? "#6B7A5A" : "#4A5848",
                 transition: "color 0.15s",
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
               }}
             >
-              RATE:{" "}
-              {rate >= 0 ? "+" : ""}
-              {rate.toFixed(1)}×
+              RATE: {rate >= 0 ? "+" : ""}{rate.toFixed(1)}×
             </span>
-            <span style={{ color: "#2C2C2C" }}>{fmtTime(TOTAL_SEC)}</span>
+            <span style={{ color: "#4A5848" }}>{fmtTime(TOTAL_SEC)}</span>
           </div>
         </div>
 
-        {/* Right reel (remaining tape — shrinks) */}
-        <div style={{ opacity: 0.9 }}>
-          <Reel size={REEL_SIZE} fillRatio={rightFill} rotation={-reelAngle} />
+        {/* Reels + scrubber row */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: REEL_ROW_W,
+            paddingTop: 8,
+          }}
+        >
+          <Reel
+            size={REEL_SIZE} fillRatio={leftFill} rotation={reelAngle}
+            tapeColor={rate < -0.05 ? "#6B7A5A" : "#2A3028"}
+          />
+
+          {/* Center scrubber */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 10,
+              cursor: dragging ? "grabbing" : "grab",
+            }}
+            onPointerDown={onPointerDown}
+          >
+            {/* Rail + blob row */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <RewindIcon active={rate < -0.1} />
+
+              {/* Wrapper — track and blob share the same coordinate space */}
+              <div style={{ position: "relative", width: BLOB_W, height: BLOB_H, flexShrink: 0 }}>
+                {/* Track line spanning the full travel zone */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: BLOB_CX - MAX_OFFSET,
+                    top: BLOB_CY - 0.5,
+                    width: MAX_OFFSET * 2,
+                    height: 1,
+                    background: "#404A3C",
+                    opacity: 0.15,
+                    pointerEvents: "none",
+                  }}
+                />
+                {/* Left end stop */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: BLOB_CX - MAX_OFFSET,
+                    top: BLOB_CY - 6,
+                    width: 1,
+                    height: 12,
+                    background: "#404A3C",
+                    opacity: 0.28,
+                    pointerEvents: "none",
+                  }}
+                />
+                {/* Right end stop */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: BLOB_CX + MAX_OFFSET,
+                    top: BLOB_CY - 6,
+                    width: 1,
+                    height: 12,
+                    background: "#404A3C",
+                    opacity: 0.28,
+                    pointerEvents: "none",
+                  }}
+                />
+
+                {/* Goo blob — layered on top of track */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    filter: "url(#liquid-goo)",
+                    transform: "translateZ(0)",
+                  }}
+                >
+                  {/* Main blob */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: BLOB_CX - MAIN_D / 2,
+                      top: BLOB_CY - MAIN_D / 2,
+                      width: MAIN_D,
+                      height: MAIN_D,
+                      borderRadius: "50%",
+                      background: "#6B7A5A",
+                    }}
+                  />
+
+                  {/* Bridge pill — maintains goo connection at full stretch */}
+                  <motion.div
+                    style={{
+                      position: "absolute",
+                      left: bridgeLeft,
+                      top: BLOB_CY - BRIDGE_H / 2,
+                      width: bridgeWidth,
+                      height: BRIDGE_H,
+                      borderRadius: BRIDGE_H / 2,
+                      background: "#6B7A5A",
+                    }}
+                  />
+
+                  {/* Secondary blob */}
+                  <motion.div
+                    style={{
+                      position: "absolute",
+                      left: BLOB_CX,
+                      top: BLOB_CY,
+                      width: SEC_D,
+                      height: SEC_D,
+                      borderRadius: "50%",
+                      background: "#6B7A5A",
+                      translateX: "-50%",
+                      translateY: "-50%",
+                      x: secOffsetX,
+                    }}
+                  />
+                </div>
+              </div>
+
+              <FastForwardIcon active={rate > 0.1} />
+            </div>
+
+            <p
+              style={{
+                fontFamily: MONO,
+                fontSize: 8,
+                letterSpacing: "0.20em",
+                textTransform: "uppercase",
+                color: "#A8BAA0",
+                margin: 0,
+              }}
+            >
+              DRAG — DISTANCE SETS RATE
+            </p>
+          </div>
+
+          <Reel
+            size={REEL_SIZE} fillRatio={rightFill} rotation={-reelAngle}
+            tapeColor={rate > 0.05 ? "#6B7A5A" : "#2A3028"}
+          />
         </div>
       </div>
-
-      {/* Interaction hint */}
-      <p
-        style={{
-          fontFamily: MONO,
-          fontSize: 8.5,
-          letterSpacing: "0.22em",
-          textTransform: "uppercase",
-          color: "#1E1E1E",
-          marginTop: 52,
-          marginBottom: 0,
-        }}
-      >
-        DRAG — DISTANCE SETS RATE
-      </p>
     </div>
   );
 }
