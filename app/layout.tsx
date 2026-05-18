@@ -31,6 +31,11 @@ const mdui = localFont({
   variable: "--font-mdui",
 });
 
+const ppSupplyMono = localFont({
+  src: "../fonts/PPSupplyMono-Regular.otf",
+  variable: "--font-pp-supply-mono",
+});
+
 export const metadata: Metadata = {
   title: "Design Lab",
   description: "Interaction design experiments and demos",
@@ -50,7 +55,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${sohne.variable} ${canela.variable} ${mdui.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${sohne.variable} ${canela.variable} ${mdui.variable} ${ppSupplyMono.variable} antialiased`}
       >
         {children}
       </body>

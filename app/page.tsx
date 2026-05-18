@@ -2,6 +2,18 @@ import Link from "next/link";
 
 const demos = [
   {
+    slug: "parallax-lens",
+    title: "Parallax Lens",
+    description: "Architectural parallax with refracted glass image cards",
+    isRoot: true,
+  },
+  {
+    slug: "velocity-stepper",
+    title: "Velocity Stepper",
+    description: "Click and drag to scrub a value — drag speed controls increment size",
+    isRoot: true,
+  },
+  {
     slug: "card-shelf",
     title: "Card Shelf",
     description: "Portrait cards scrolling horizontally at the bottom of the screen",
