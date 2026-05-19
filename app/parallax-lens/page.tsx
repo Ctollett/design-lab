@@ -49,6 +49,11 @@ const fragmentShader = /* glsl */`
   const float EDGE_W = 0.16;
   const float PI     = 3.14159265;
 
+  float hash21(vec2 p) {
+    p = fract(p * vec2(127.1, 311.7));
+    return fract(sin(dot(p, p + vec2(127.1, 311.7))) * 43758.5453);
+  }
+
   void main() {
     vec2 screen = (vClip.xy / vClip.w) * 0.5 + 0.5;
     vec2 p = vUv - 0.5;
@@ -97,6 +102,11 @@ const fragmentShader = /* glsl */`
     float textDelta = length(bgDirect.rgb - uBgColor);
     float shadow    = smoothstep(0.08, 0.50, textDelta) * 0.28 * uShadow;
     color.rgb      *= 1.0 - shadow;
+
+    // Tactile grain — finer in the clear center, denser at the glass rim
+    float grainAmt = 0.018 + edgeFactor * 0.022;
+    float grain    = (hash21(vUv * 780.0) * 2.0 - 1.0) * grainAmt;
+    color.rgb     += grain;
 
     gl_FragColor = color;
   }
