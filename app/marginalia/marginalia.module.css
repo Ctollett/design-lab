@@ -1,0 +1,235 @@
+@font-face {
+  font-family: "PPEditorialOld";
+  src: url("/fonts/PPEditorialOld-Ultralight.otf") format("opentype");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "PPEditorialOld";
+  src: url("/fonts/PPEditorialOld-Regular.otf") format("opentype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "PPFraktionSans";
+  src: url("./PPFraktionSans-Light.otf") format("opentype");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "PPFraktionMono";
+  src: url("./PPFraktionMono-Regular.otf") format("opentype");
+  font-weight: 400;
+}
+
+.page {
+
+}
+
+.body {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 100px 0 400px;
+  color: #1A1714;
+  position: relative;
+  z-index: 1;
+}
+
+.body p {
+  font-family: 'PPEditorialOld', Georgia, serif;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
+  color: #2A2420;
+  margin-bottom: 1.8em;
+  margin-top: 0;
+}
+
+.paragraph {
+
+}
+
+.cite {
+  color: #7AAFC4;
+  cursor: pointer;
+}
+
+.cornerLabel {
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #787470;
+  line-height: 1.7;
+  text-align: right;
+}
+
+/* ── Citation Card ── */
+
+.dismiss {
+  position: fixed;
+  bottom: 420px;
+  left: calc(50% - 200px);
+  padding: 6px 14px;
+  background: none;
+  border: 1px solid #C2D9E4;
+  border-radius: 99px;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7AAFC4;
+  white-space: nowrap;
+  z-index: 20;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dismiss:hover {
+  background: #C2D9E4;
+  color: #1A1714;
+}
+
+.stack {
+  position: fixed;
+  bottom: 0;
+  left: calc(50% - 200px);
+  width: 400px;
+  z-index: 10;
+}
+
+.card {
+  position: absolute;
+  bottom: 200px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: #181A18;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: "PPFraktionMono", monospace;
+  overflow: hidden;
+}
+
+.dots {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 7px);
+  gap: 5px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.28;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2020/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='8' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cardTop {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.coverWrapper {
+  position: relative;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cover {
+  width: 124px;
+  height: 124px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  filter: grayscale(100%);
+}
+
+.coverOverlay {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: color;
+  opacity: 1;
+  border-radius: inherit;
+}
+
+.cardMeta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+  width: 100%;
+}
+
+.metaRow {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.metaLabel {
+  font-size: 6px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 247, 0.3);
+  white-space: nowrap;
+}
+
+.metaValue {
+  font-size: 7px;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 247, 0.85);
+  line-height: 1.4;
+}
+
+.divider {
+  height: 0.5px;
+  background: rgba(255, 255, 247, 0.12);
+}
+
+.quote {
+  font-size: 8px;
+  font-style: italic;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 247, 0.45);
+  line-height: 1.7;
+  align-self: center;
+}
