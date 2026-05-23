@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+button { cursor: pointer; }
+
 :root {
 --background: linear-gradient(203deg,rgba(0, 0, 0, 1) 0%, rgba(20, 23, 23, 1) 100%);
   --foreground: #ededed;
