@@ -22,10 +22,6 @@
   font-weight: 400;
 }
 
-.page {
-
-}
-
 .body {
   max-width: 480px;
   margin: 0 auto;
@@ -46,12 +42,8 @@
   margin-top: 0;
 }
 
-.paragraph {
-
-}
 
 .cite {
-  color: #7AAFC4;
   cursor: pointer;
 }
 
@@ -70,28 +62,6 @@
 
 /* ── Citation Card ── */
 
-.dismiss {
-  position: fixed;
-  bottom: 420px;
-  left: calc(50% - 200px);
-  padding: 6px 14px;
-  background: none;
-  border: 1px solid #C2D9E4;
-  border-radius: 99px;
-  font-family: var(--font-pp-supply-mono), monospace;
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #7AAFC4;
-  white-space: nowrap;
-  z-index: 20;
-  transition: background 0.15s, color 0.15s;
-}
-
-.dismiss:hover {
-  background: #C2D9E4;
-  color: #1A1714;
-}
 
 .stack {
   position: fixed;
@@ -108,16 +78,85 @@
   right: 0;
   width: 100%;
   background: #181A18;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.45), 0 4px 8px rgba(0, 0, 0, 0.24);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 15px rgba(0, 0, 0, 0.35),
+    0 4px 8px rgba(0, 0, 0, 0.18);
   border-radius: 16px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   font-family: "PPFraktionMono", monospace;
-  overflow: hidden;
+}
+
+.cardCount {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 247, 0.3);
+  z-index: 2;
+}
+
+.tag {
+  position: absolute;
+  top: -16px;
+  left: 20px;
+  height: 16px;
+  padding: 0 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tagBg {
+  position: absolute;
+  inset: 0 0 -1px 0;
+  background: var(--tag-color, #181A18);
+  border-radius: 8px 8px 0 0;
+}
+
+.tagBg::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -8px;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle at 0% 0%, transparent 8px, var(--tag-color, #181A18) 8px);
+}
+
+.tagBg::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: -8px;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle at 100% 0%, transparent 8px, var(--tag-color, #181A18) 8px);
+}
+
+
+.tagLabel {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 247, 0.45);
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.tag:hover .tagLabel {
+  color: rgba(255, 255, 247, 0.8);
 }
 
 .dots {
@@ -125,40 +164,30 @@
   top: 16px;
   right: 16px;
   display: grid;
-  grid-template-columns: repeat(4, 7px);
-  gap: 5px;
+  grid-template-columns: repeat(4, 8px);
+  gap: 4px;
 }
 
 .dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   transition: transform 0.2s, opacity 0.2s;
 }
 
 
-.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.28;
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-  z-index: 0;
-}
+
 
 .card::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2020/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='8' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.22;
-  mix-blend-mode: overlay;
+  background: var(--card-texture) center / cover no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.55;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
 }
 
 .cardTop {
@@ -170,7 +199,7 @@
 .coverWrapper {
   position: relative;
   flex-shrink: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -180,7 +209,7 @@
   object-fit: cover;
   border-radius: 12px;
   display: block;
-  filter: grayscale(100%);
+  filter: grayscale(1);
 }
 
 .coverOverlay {
@@ -200,13 +229,13 @@
 
 .metaRow {
   display: grid;
-  grid-template-columns: 28px 1fr;
+  grid-template-columns: auto 1fr;
   gap: 8px;
   align-items: baseline;
 }
 
 .metaLabel {
-  font-size: 6px;
+  font-size: 8px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(255, 255, 247, 0.3);
@@ -214,7 +243,7 @@
 }
 
 .metaValue {
-  font-size: 7px;
+  font-size: 8px;
   letter-spacing: 0.04em;
   color: rgba(255, 255, 247, 0.85);
   line-height: 1.4;
@@ -226,10 +255,11 @@
 }
 
 .quote {
-  font-size: 8px;
+  font-family: 'PPEditorialOld', Georgia, serif;
+  font-size: 12px;
   font-style: italic;
-  letter-spacing: 0.03em;
-  color: rgba(255, 255, 247, 0.45);
-  line-height: 1.7;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 247, 0.55);
+  line-height: 1.6;
   align-self: center;
 }

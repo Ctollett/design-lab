@@ -53,31 +53,39 @@
 .cardLabel {
   position: fixed;
   left: 50%;
-  /* card bottom projects to 50% + 15vh; add 14px gap */
-  top: calc(50% + 15vh + 14px);
-  text-align: center;
+  top: calc(50% + 15vh + 18px);
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  align-items: center;
+  gap: 0;
 }
 
 .cardTitle {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 13px;
+  font-family: var(--font-mdui), sans-serif;
+  font-size: 15px;
   font-weight: 400;
-  font-style: italic;
   color: #1A1714;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
   white-space: nowrap;
+  margin-bottom: 7px;
+}
+
+.cardDivider {
+  width: 100%;
+  height: 0.5px;
+  background: #C8C0B2;
+  margin-bottom: 7px;
 }
 
 .cardMeta {
   font-family: var(--font-pp-supply-mono), monospace;
-  font-size: 8px;
-  letter-spacing: 0.18em;
+  font-size: 7.5px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #6B6359;
+  white-space: nowrap;
 }
 
 /* ── Corner label ── */

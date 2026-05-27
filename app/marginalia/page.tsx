@@ -25,7 +25,7 @@ type Citation = {
 const CITATIONS: Citation[] = [
   {
     id: 1,
-    color: "#E8C040",
+    color: "#B89E77",
     source: {
       title: "An Essay on Typography",
       author: "Eric Gill",
@@ -37,7 +37,7 @@ const CITATIONS: Citation[] = [
   },
   {
     id: 2,
-    color: "#E8705A",
+    color: "#A97467",
     source: {
       title: "The Americans",
       author: "Robert Frank",
@@ -49,7 +49,7 @@ const CITATIONS: Citation[] = [
   },
   {
     id: 3,
-    color: "#5A90D8",
+    color: "#6E8794",
     source: {
       title: "Typographie",
       author: "Emil Ruder",
@@ -61,7 +61,7 @@ const CITATIONS: Citation[] = [
   },
   {
     id: 4,
-    color: "#E860A8",
+    color: "#A26E81",
     source: {
       title: "Camera Lucida",
       author: "Roland Barthes",
@@ -73,7 +73,7 @@ const CITATIONS: Citation[] = [
   },
   {
     id: 5,
-    color: "#E88030",
+    color: "#AD7F4B",
     source: {
       title: "Vision in Motion",
       author: "László Moholy-Nagy",
@@ -85,7 +85,7 @@ const CITATIONS: Citation[] = [
   },
   {
     id: 6,
-    color: "#3AB898",
+    color: "#5E8477",
     source: {
       title: "William Eggleston's Guide",
       author: "William Eggleston",
@@ -97,7 +97,7 @@ const CITATIONS: Citation[] = [
   },
   {
     id: 7,
-    color: "#9868D8",
+    color: "#7A6B85",
     source: {
       title: "Pioneers of Modern Typography",
       author: "Herbert Spencer",
@@ -109,7 +109,7 @@ const CITATIONS: Citation[] = [
   },
   {
     id: 8,
-    color: "#70C040",
+    color: "#799365",
     source: {
       title: "A Smile in the Mind",
       author: "Beryl McAlhone & David Stuart",
@@ -178,30 +178,40 @@ const BODY: (string | { cite: number })[][] = [
 
 // ── Citation Card ─────────────────────────────────────────────────────────────────
 
+const TEXTURES = [2, 10, 13, 34];
+
 type CitationCardProps = {
   source: Citation["source"];
-  id: number;
+  color: string;
+  texture: number;
+  count?: number;
+  onDismiss?: () => void;
 };
 
-function CitationCard({ source, id }: CitationCardProps) {
+function CitationCard({ source, color, texture, count, onDismiss }: CitationCardProps) {
   return (
-    <div className={styles.card}>
-
-      <div className={styles.dots}>
-        {CITATIONS.map(c => (
-          <div
-            key={c.id}
-            className={styles.dot}
-            style={{
-              background: c.color,
-              opacity: c.id === id ? 1 : 0.2,
-              transform: c.id === id ? "scale(1.4)" : "scale(1)",
-            }}
+    <div className={styles.card} style={{ background: color, "--card-texture": `url('/marginalia/texture-${texture}.png')` } as React.CSSProperties}>
+      {count && count > 1 && (
+        <div className={styles.cardCount}>{count} / {CITATIONS.length}</div>
+      )}
+      {onDismiss && (
+        <motion.button
+          className={styles.tag}
+          onClick={onDismiss}
+          initial="rest"
+          whileHover="hover"
+        >
+          <motion.div
+            className={styles.tagBg}
+            style={{ "--tag-color": color, transformOrigin: "bottom center" } as React.CSSProperties}
+            variants={{ rest: { scaleY: 1 }, hover: { scaleY: 1.22 } }}
+            transition={{ type: "spring", stiffness: 320, damping: 22 }}
           />
-        ))}
-      </div>
+          <span className={styles.tagLabel}>Close</span>
+        </motion.button>
+      )}
 
-      <div className={styles.cardTop}>
+<div className={styles.cardTop}>
         <div className={styles.coverWrapper}>
           <img src={source.cover} alt={source.title} className={styles.cover} />
         </div>
@@ -232,7 +242,9 @@ function CitationCard({ source, id }: CitationCardProps) {
 
 export default function Marginalia() {
   const [collected, setCollected] = useState<number[]>([]);
+  const [collectedOrder, setCollectedOrder] = useState<number[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [dismissing, setDismissing] = useState(false);
 
   const lenisRef = useRef<Lenis | null>(null);
   const citeRefs = useRef<Record<number, HTMLElement | null>>({});
@@ -266,13 +278,14 @@ export default function Marginalia() {
     lenisRef.current.scrollTo(target, { offset, duration: 1.4 });
   }, [frontId]);
 
-  const handleDismiss = () => setIsOpen(false);
+  const handleDismiss = () => setDismissing(true);
 
   const handleCiteClick = (id: number) => {
     if (collected.includes(id)) {
       setCollected(prev => [...prev.filter(c => c !== id), id]);
     } else {
       setCollected(prev => [...prev, id]);
+      setCollectedOrder(prev => [...prev, id]);
     }
     setIsOpen(true);
   };
@@ -284,8 +297,8 @@ export default function Marginalia() {
         {BODY.map((paragraph, i) => {
           const paragraphCite = paragraph.find((s): s is { cite: number } => typeof s !== "string");
           const paragraphColor = paragraphCite ? CITATIONS.find(c => c.id === paragraphCite.cite)?.color : undefined;
-          const paragraphActive = paragraphCite?.cite === frontId && isOpen;
-          const paragraphDimmed = isOpen && frontId !== undefined && !paragraphActive;
+          const paragraphActive = paragraphCite?.cite === frontId && isOpen && !dismissing;
+          const paragraphDimmed = isOpen && !dismissing && frontId !== undefined && !paragraphActive;
           return (
             <p key={i} style={{ filter: paragraphDimmed ? "blur(1.5px)" : "none", opacity: paragraphDimmed ? 0.4 : 1, transition: "filter 0.4s ease, opacity 0.4s ease" }}>
               <span style={{
@@ -303,6 +316,7 @@ export default function Marginalia() {
                       key={j}
                       ref={el => { citeRefs.current[segment.cite] = el; }}
                       className={styles.cite}
+                      style={{ color: CITATIONS.find(c => c.id === segment.cite)?.color }}
                       onClick={() => handleCiteClick(segment.cite)}
                     >
                       {segment.cite}
@@ -316,58 +330,50 @@ export default function Marginalia() {
       </div>
       <AnimatePresence>
         {isOpen && collected.length > 0 && (
-          <motion.div
-            className={styles.stack}
-            initial={{ y: 40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 28 }}
-          >
-            <AnimatePresence mode="popLayout">
-              {collected.map((id, index) => {
-                const offset = collected.length - 1 - index;
-                const isFront = offset === 0;
-                const citation = CITATIONS.find(c => c.id === id);
-                if (!citation) return null;
-                return (
-                  <motion.div
-                    key={id}
-                    style={{ zIndex: collected.length - offset, position: "absolute", bottom: 0, left: 0, right: 0 }}
-                    animate={{ y: offset * 10, scale: 1 - offset * 0.03, x: 0 }}
-                    exit={{ y: flipDirectionRef.current * 500, opacity: 0, transition: { duration: 0.3 } }}
-                    drag={isFront ? "y" : false}
-                    dragConstraints={{ top: 0, bottom: 0 }}
-                    dragElastic={0.6}
-                    onDragEnd={(_, info) => {
-                      const flicked = Math.abs(info.velocity.y) > 400;
-                      const dragged = Math.abs(info.offset.y) > 80;
-                      if (flicked || dragged) {
-                        flipDirectionRef.current = info.offset.y > 0 ? 1 : -1;
-                        handleFlip();
-                      }
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 28 }}
-                  >
-                    <CitationCard source={citation.source} id={citation.id} />
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+          <motion.div className={styles.stack}>
+            {collected.map((id, index) => {
+              const offset = collected.length - 1 - index;
+              const isFront = offset === 0;
+              const citation = CITATIONS.find(c => c.id === id);
+              if (!citation) return null;
+              const rotation = Math.sin(id * 2.4) * 1.8;
+              const exitDelay = (collected.length - 1 - index) * 0.07;
+              return (
+                <motion.div
+                  key={id}
+                  initial={{ y: 700, opacity: 0 }}
+                  style={{ zIndex: collected.length - offset, position: "absolute", bottom: 0, left: 0, right: 0 }}
+                  animate={dismissing
+                    ? { y: 700, opacity: 0 }
+                    : { y: offset * 10, scale: 1 - offset * 0.03, rotate: isFront ? 0 : rotation, opacity: 1 }
+                  }
+                  transition={dismissing
+                    ? { type: "spring", stiffness: 280, damping: 28, delay: exitDelay }
+                    : { type: "spring", stiffness: 300, damping: 26, delay: index * 0.07 }
+                  }
+                  drag={!dismissing && isFront ? "y" : false}
+                  dragConstraints={{ top: 0, bottom: 0 }}
+                  dragElastic={0.6}
+                  onDragEnd={(_, info) => {
+                    const flicked = Math.abs(info.velocity.y) > 400;
+                    const dragged = Math.abs(info.offset.y) > 80;
+                    if (flicked || dragged) {
+                      flipDirectionRef.current = info.offset.y > 0 ? 1 : -1;
+                      handleFlip();
+                    }
+                  }}
+                  onAnimationComplete={() => {
+                    if (dismissing && index === 0) {
+                      setIsOpen(false);
+                      setDismissing(false);
+                    }
+                  }}
+                >
+                  <CitationCard source={citation.source} color={citation.color} texture={TEXTURES[(citation.id - 1) % TEXTURES.length]} count={isFront ? collectedOrder.indexOf(id) + 1 : undefined} onDismiss={isFront ? handleDismiss : undefined} />
+                </motion.div>
+              );
+            })}
           </motion.div>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.button
-            className={styles.dismiss}
-            onClick={handleDismiss}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ type: "spring", stiffness: 300, damping: 28 }}
-          >
-            Close
-          </motion.button>
         )}
       </AnimatePresence>
       <div className={styles.cornerLabel}>

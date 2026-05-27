@@ -36,30 +36,39 @@ const SQUISH_LERP_OUT = 0.04;
 
 // ── Images & content ───────────────────────────────────────────────────────────
 
-const IMAGES = [
-  "/infinite-canvas/img-01.png",
-  "/infinite-canvas/img-02.png",
-  "/infinite-canvas/img-03.png",
-  "/infinite-canvas/img-04.png",
-  "/infinite-canvas/img-05.png",
-  "/infinite-canvas/img-06.png",
-  "/infinite-canvas/img-07.png",
-  "/infinite-canvas/img-08.png",
-  "/infinite-canvas/img-09.png",
-  "/infinite-canvas/img-10.png",
-];
+const IMAGES = Array.from({ length: 30 }, (_, i) => `/infinite-canvas/img-${i + 1}.png`);
 
-const CONTENT = [
-  { title: "Afternoon Light",     meta: "35mm · 2024" },
-  { title: "Urban Geometry",      meta: "Digital · 2023" },
-  { title: "Quiet Interior",      meta: "35mm · 2024" },
-  { title: "Street Study",        meta: "Digital · 2024" },
-  { title: "Morning Composition", meta: "35mm · 2023" },
-  { title: "Form and Shadow",     meta: "Digital · 2024" },
-  { title: "Still Life No. 7",    meta: "35mm · 2023" },
-  { title: "Open Window",         meta: "Digital · 2024" },
-  { title: "Late Afternoon",      meta: "35mm · 2024" },
-  { title: "Architecture Study",  meta: "Digital · 2023" },
+const CONTENT: { title: string; room: string; year: string }[] = [
+  { title: "Afternoon Study",       room: "Living Room",     year: "2001" },
+  { title: "Steel Kitchen",         room: "Kitchen",         year: "1999" },
+  { title: "Nightstand Radio",      room: "Bedroom",         year: "2000" },
+  { title: "The iMac Desk",         room: "Home Office",     year: "2002" },
+  { title: "Yellow Room",           room: "Living Room",     year: "2000" },
+  { title: "Kitchen, Morning",      room: "Kitchen",         year: "1998" },
+  { title: "Corner Study",          room: "Home Office",     year: "1999" },
+  { title: "The Conservatory",      room: "Sunroom",         year: "1997" },
+  { title: "Home Gym",              room: "Gym",             year: "2001" },
+  { title: "Reading Corner",        room: "Study",           year: "2002" },
+  { title: "The Home Bar",          room: "Bar",             year: "1999" },
+  { title: "The Entryway",          room: "Entryway",        year: "2000" },
+  { title: "Working from Home",     room: "Home Office",     year: "1994" },
+  { title: "White Living Room",     room: "Living Room",     year: "1998" },
+  { title: "Garden Patio",          room: "Outdoor",         year: "1997" },
+  { title: "Breakfast Nook",        room: "Breakfast Room",  year: "1998" },
+  { title: "Clawfoot Bath",         room: "Bathroom",        year: "1999" },
+  { title: "The Screening Room",    room: "Cinema",          year: "2000" },
+  { title: "Basement Rec Room",     room: "Rec Room",        year: "1995" },
+  { title: "Stone Fireplace",       room: "Living Room",     year: "1998" },
+  { title: "The Loft Studio",       room: "Studio",          year: "2002" },
+  { title: "Summer Deck",           room: "Outdoor",         year: "1999" },
+  { title: "Poolside",              room: "Outdoor",         year: "1997" },
+  { title: "The Kitchen Island",    room: "Kitchen",         year: "2001" },
+  { title: "The Staircase",         room: "Entryway",        year: "2000" },
+  { title: "The Media Room",        room: "Media Room",      year: "2001" },
+  { title: "The Pergola",           room: "Outdoor",         year: "1998" },
+  { title: "Bay Window",            room: "Living Room",     year: "1997" },
+  { title: "Screened Porch",        room: "Porch",           year: "1999" },
+  { title: "Log Cabin",             room: "Living Room",     year: "1998" },
 ];
 
 function imgKey(i: number, j: number): number {
@@ -106,6 +115,7 @@ const FRAG = /* glsl */`
     float d     = length(max(q, 0.0)) - radius;
     float fw    = fwidth(d);
     float alpha = 1.0 - smoothstep(-fw, fw, d);
+    if (alpha < 0.01) discard;
 
     vec3 img   = texture2D(map, uv).rgb;
     vec3 color = mix(img, bgColor, depthFactor * 0.72);
@@ -185,6 +195,7 @@ export default function InfiniteCanvas() {
             fragmentShader: FRAG,
           });
           const mesh = new THREE.Mesh(cardGeo, mat);
+          mesh.frustumCulled = false;
           mesh.userData = { i: gi, j: gj, texKey: key };
           mesh.position.set(gi * STRIDE, gj * STRIDE, 0);
           scene.add(mesh);
@@ -387,7 +398,8 @@ export default function InfiniteCanvas() {
             transition={{ type: "spring", stiffness: 300, damping: 28 }}
           >
             <div className={styles.cardTitle}>{CONTENT[snapped].title}</div>
-            <div className={styles.cardMeta}>{CONTENT[snapped].meta}</div>
+            <div className={styles.cardDivider} />
+            <div className={styles.cardMeta}>{CONTENT[snapped].room}&nbsp;&nbsp;·&nbsp;&nbsp;{CONTENT[snapped].year}</div>
           </motion.div>
         )}
       </AnimatePresence>
