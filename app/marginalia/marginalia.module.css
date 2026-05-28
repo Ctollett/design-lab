@@ -23,7 +23,7 @@
 }
 
 .body {
-  max-width: 480px;
+  max-width: 380px;
   margin: 0 auto;
   padding: 100px 0 400px;
   color: #1A1714;
@@ -40,6 +40,7 @@
   color: #2A2420;
   margin-bottom: 1.8em;
   margin-top: 0;
+  text-wrap: pretty;
 }
 
 
@@ -49,7 +50,7 @@
 
 .cornerLabel {
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   right: 24px;
   font-family: var(--font-pp-supply-mono), monospace;
   font-size: 9px;
@@ -73,7 +74,7 @@
 
 .card {
   position: absolute;
-  bottom: 200px;
+  bottom: 160px;
   left: 0;
   right: 0;
   width: 100%;
@@ -99,6 +100,19 @@
   text-transform: uppercase;
   color: rgba(255, 255, 247, 0.3);
   z-index: 2;
+}
+
+.pageLabel {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #787470;
+  line-height: 1.7;
+  pointer-events: none;
 }
 
 .tag {
@@ -178,17 +192,6 @@
 
 
 
-.card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--card-texture) center / cover no-repeat;
-  mix-blend-mode: screen;
-  opacity: 0.55;
-  pointer-events: none;
-  z-index: 1;
-}
 
 .cardTop {
   display: flex;
@@ -222,20 +225,19 @@
 
 .cardMeta {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px 0;
   width: 100%;
 }
 
 .metaRow {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 8px;
-  align-items: baseline;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .metaLabel {
-  font-size: 8px;
+  font-size: 4px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(255, 255, 247, 0.3);
@@ -243,10 +245,11 @@
 }
 
 .metaValue {
-  font-size: 8px;
+  font-size: 4px;
   letter-spacing: 0.04em;
   color: rgba(255, 255, 247, 0.85);
   line-height: 1.4;
+  text-transform: uppercase;
 }
 
 .divider {
@@ -255,11 +258,11 @@
 }
 
 .quote {
-  font-family: 'PPEditorialOld', Georgia, serif;
-  font-size: 12px;
-  font-style: italic;
-  letter-spacing: 0.01em;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.06em;
   color: rgba(255, 255, 247, 0.55);
-  line-height: 1.6;
+  line-height: 1.8;
   align-self: center;
+  text-transform: uppercase;
 }
