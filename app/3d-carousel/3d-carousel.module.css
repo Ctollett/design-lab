@@ -1,0 +1,101 @@
+.wrapper {
+  width: 100vw;
+  height: 100vh;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+
+.wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.content {
+  height: 8000px;
+  position: relative;
+}
+
+/* ── Sticky stage ── */
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #F4EFE6;
+}
+
+/* ── Three.js mount ── */
+
+.mount {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+}
+
+.mount:active {
+  cursor: grabbing;
+}
+
+/* ── Card frame ── */
+
+/* Top: title floats above, hairline anchors to the card top edge */
+.frameTop {
+  position: absolute;
+  top: 37vh;
+  left: 0;
+  right: 0;
+  transform: translateY(-100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* Bottom: hairline anchors to the card bottom edge, meta floats below */
+.frameBottom {
+  position: absolute;
+  top: 63vh;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+
+.labelTitle {
+  font-family: var(--font-mdui), sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #1A1714;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  padding-bottom: 8px;
+}
+
+.labelMeta {
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #6B6359;
+  white-space: nowrap;
+  padding-top: 8px;
+}
+
+/* ── Corner label ── */
+
+.cornerLabel {
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #787470;
+  line-height: 1.7;
+  text-align: right;
+  pointer-events: none;
+}
