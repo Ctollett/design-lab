@@ -38,50 +38,55 @@
 
 /* ── Card frame ── */
 
-/* Top: title floats above, hairline anchors to the card top edge */
+/* Top: icon + title float above the card */
 .frameTop {
   position: absolute;
-  top: 37vh;
+  top: 34vh;
   left: 0;
   right: 0;
   transform: translateY(-100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  height: 80px;
   pointer-events: none;
 }
 
-/* Bottom: hairline anchors to the card bottom edge, meta floats below */
-.frameBottom {
+.frameIcon {
   position: absolute;
-  top: 63vh;
+  top: 0;
   left: 0;
   right: 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
+}
+
+/* Bottom: meta floats below the card */
+.frameBottom {
+  position: absolute;
+  top: 66vh;
+  left: 0;
+  right: 0;
+  height: 36px;
   pointer-events: none;
 }
 
 
 .labelTitle {
   font-family: var(--font-mdui), sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
   color: #1A1714;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  padding-bottom: 8px;
+  padding-bottom: 10px;
 }
 
 .labelMeta {
   font-family: var(--font-pp-supply-mono), monospace;
   font-size: 7.5px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.20em;
   text-transform: uppercase;
   color: #6B6359;
   white-space: nowrap;
-  padding-top: 8px;
+  padding-top: 10px;
 }
 
 /* ── Corner label ── */

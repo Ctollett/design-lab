@@ -100,6 +100,8 @@ const FRAG = /* glsl */`
   varying vec3 vNormal;
   uniform sampler2D map;
   uniform float radius;
+  uniform float depthAmt;
+  uniform float blurAmt;
 
   void main() {
     vec2 q = abs(vUv - 0.5) - (0.5 - radius);
@@ -108,29 +110,46 @@ const FRAG = /* glsl */`
     float alpha = 1.0 - smoothstep(-fw, fw, dist);
     if (alpha < 0.01) discard;
 
-    vec3 base = texture2D(map, vUv).rgb;
+    // Motion blur — sample along U in the direction of spin
+    vec3 base = vec3(0.0);
+    const int BLUR_SAMPLES = 9;
+    for (int s = 0; s < BLUR_SAMPLES; s++) {
+      float t   = float(s) / float(BLUR_SAMPLES - 1) - 0.5;
+      vec2  buv = vec2(clamp(vUv.x + blurAmt * t, 0.001, 0.999), vUv.y);
+      base += texture2D(map, buv).rgb;
+    }
+    base /= float(BLUR_SAMPLES);
 
     vec3  N       = normalize(vNormal);
     float tiltMag = length(N.xy);
 
-    // Very faint iridescent tint — only a whisper of colour at steep angles
+    // Motion sheen — bright white gloss that catches during waves
     float d    = atan(N.y, N.x) + tiltMag * 10.0;
     vec3  tint = vec3(
       0.5 + 0.26 * cos(d),
       0.5 + 0.26 * cos(d + 2.094),
       0.5 + 0.26 * cos(d + 4.189)
     );
-
-    // Sheen is mostly white — colour barely bleeds in at high tilt
-    vec3 sheenColor = mix(vec3(1.0), tint, clamp(tiltMag * 0.9, 0.0, 0.14));
-
-    // Stronger on lighter grays (glossy paper catches more light there)
-    float luma      = dot(base, vec3(0.299, 0.587, 0.114));
-    float intensity = clamp(abs(vWave) * 11.0 + tiltMag * 0.45, 0.0, 0.28)
-                    * (0.45 + 0.55 * luma);
-
-    // Screen blend: adds light over the photo, keeps image fully readable
+    vec3  sheenColor = mix(vec3(1.0), tint, clamp(tiltMag * 0.9, 0.0, 0.14));
+    float luma       = dot(base, vec3(0.299, 0.587, 0.114));
+    float intensity  = clamp(abs(vWave) * 11.0 + tiltMag * 0.45, 0.0, 0.28)
+                     * (0.45 + 0.55 * luma);
     vec3 color = 1.0 - (1.0 - base) * (1.0 - sheenColor * intensity);
+
+    // Thin-film iridescence — only on the front card, fades as cards rotate away.
+    float filmPhase = vUv.y * 5.5 + vUv.x * 1.8 + atan(N.y, N.x) * 1.6 + vWave * 10.0;
+    vec3 film = vec3(
+      0.5 + 0.5 * cos(filmPhase),
+      0.5 + 0.5 * cos(filmPhase + 2.094),
+      0.5 + 0.5 * cos(filmPhase + 4.189)
+    );
+    float frontness = 1.0 - smoothstep(0.0, 0.35, depthAmt);
+    float filmAmt = clamp(0.022 + tiltMag * 0.045 + abs(vWave) * 0.11, 0.015, 0.065) * frontness;
+    color = 1.0 - (1.0 - color) * (1.0 - film * filmAmt);
+
+    // Depth darkening — side and back cards fall into shadow
+    float shadow = smoothstep(0.0, 1.0, depthAmt) * 0.52;
+    color *= (1.0 - shadow);
 
     gl_FragColor = vec4(color, alpha);
   }
@@ -180,14 +199,16 @@ export default function Carousel3D() {
 
         const mat = new THREE.ShaderMaterial({
           uniforms: {
-            map:     { value: tex },
-            radius:  { value: 0.07 },
-            time:    { value: 0 },
-            waveAmt: { value: 0 },
-            waveDir: { value: 0 },
-            phase:   { value: i * 0.9 },
+            map:      { value: tex },
+            radius:   { value: 0.07 },
+            time:     { value: 0 },
+            waveAmt:  { value: 0 },
+            waveDir:  { value: 0 },
+            phase:    { value: i * 0.9 },
             grabAmt:   { value: 0 },
             impactAmt: { value: 0 },
+            depthAmt:  { value: 0 },
+            blurAmt:   { value: 0 },
           },
           vertexShader:   VERT,
           fragmentShader: FRAG,
@@ -253,14 +274,14 @@ export default function Carousel3D() {
       const onMove = (e: PointerEvent) => {
         if (!isDragging) return;
         const delta = (e.clientX - dragStartX) / window.innerWidth;
-        targetRotY  = dragStartRot - delta * Math.PI * 2.5;
+        targetRotY  = dragStartRot + delta * Math.PI * 2.5;
       };
 
       const onUp = () => {
         if (!isDragging) return;
         isDragging = false;
-        const index    = Math.round(-targetRotY / ANGLE);
-        targetRotY     = -index * ANGLE;
+        const index = Math.round(-targetRotY / ANGLE);
+        targetRotY  = -index * ANGLE;
         lenis.scrollTo(-targetRotY / SCROLL_FACTOR, { immediate: true });
       };
 
@@ -315,6 +336,9 @@ export default function Carousel3D() {
         const justPressed = isDragging && !prevDragging;
         prevDragging = isDragging;
 
+        // Signed blur: direction from spinDelta, magnitude from speed. Capped at ±0.038 UV units.
+        const blurTarget = Math.max(-0.038, Math.min(0.038, spinDelta * 11.0));
+
         meshes.forEach((mesh, i) => {
           const u = (mesh.material as THREE.ShaderMaterial).uniforms;
           u.time.value    = t;
@@ -330,6 +354,11 @@ export default function Carousel3D() {
           if (justPressed && i === frontIdx) impactAmts[i] = 1.0;
           impactAmts[i] *= 0.88;
           u.impactAmt.value = impactAmts[i];
+          // Angular distance from camera forward — 0 at front, 1 at back
+          let ang = ((ANGLE * i + currentRotY) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+          if (ang > Math.PI) ang -= Math.PI * 2;
+          u.depthAmt.value = Math.min(Math.abs(ang) / Math.PI, 1.0);
+          u.blurAmt.value += (blurTarget - u.blurAmt.value) * 0.18;
         });
 
         renderer.render(scene, camera);
@@ -365,9 +394,20 @@ export default function Carousel3D() {
           <div ref={mountRef} className={styles.mount} />
 
           <div className={styles.frameTop}>
+            <div className={styles.frameIcon}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/3d-carousel/noun-mushrooms-4644483.svg"
+                width={34}
+                height={34}
+                alt=""
+                style={{ opacity: 0.55 }}
+              />
+            </div>
             <AnimatePresence mode="sync">
               <motion.div
                 key={`title-${active}`}
+                style={{ position: "absolute", bottom: 0, left: 0, right: 0, display: "flex", justifyContent: "center" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -382,6 +422,7 @@ export default function Carousel3D() {
             <AnimatePresence mode="sync">
               <motion.div
                 key={`meta-${active}`}
+                style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", justifyContent: "center" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
