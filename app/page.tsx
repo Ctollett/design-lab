@@ -2,6 +2,12 @@ import Link from "next/link";
 
 const demos = [
   {
+    slug: "3d-carousel",
+    title: "3D Carousel",
+    description: "Images arranged in a 3D circle — drag to rotate, depth visible",
+    isRoot: true,
+  },
+  {
     slug: "parallax-lens",
     title: "Parallax Lens",
     description: "Architectural parallax with refracted glass image cards",
@@ -38,9 +44,39 @@ const demos = [
     isRoot: true,
   },
   {
+    slug: "ruun-showcase",
+    title: "Ruun Showcase",
+    description: "Spring physics SVG morphing across four real-world components",
+    isRoot: true,
+  },
+  {
+    slug: "dropdown-menu",
+    title: "Dropdown Menu",
+    description: "Polished action menu with spring hover states",
+    isRoot: true,
+  },
+  {
     slug: "live-polish",
     title: "Live Polish",
     description: "Experiment canvas for the live polish tool",
+    isRoot: true,
+  },
+  {
+    slug: "command-menu",
+    title: "Command Menu",
+    description: "Search command palette with morph transition and spring highlight",
+    isRoot: true,
+  },
+  {
+    slug: "image-filter",
+    title: "Image Filter",
+    description: "Adjust button that expands into a filter panel with spring sliders",
+    isRoot: true,
+  },
+  {
+    slug: "pull-up-footer",
+    title: "Pull-Up Footer",
+    description: "Card page that reveals a large fixed footer as you scroll",
     isRoot: true,
   },
   {
