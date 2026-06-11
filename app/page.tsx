@@ -80,6 +80,12 @@ const demos = [
     isRoot: true,
   },
   {
+    slug: "card-lift",
+    title: "Card Lift",
+    description: "Cards peek from the bottom — drag to browse, center card lifts with spring physics",
+    isRoot: true,
+  },
+  {
     slug: "example",
     title: "Example Demo",
     description: "GSAP + Framer Motion showcase",
