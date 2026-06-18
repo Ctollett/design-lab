@@ -86,6 +86,18 @@ const demos = [
     isRoot: true,
   },
   {
+    slug: "image-cube",
+    title: "Image Cube",
+    description: "3D cube of images that rotates as you scroll",
+    isRoot: true,
+  },
+  {
+    slug: "dot-grid",
+    title: "Dot Grid",
+    description: "Proximity dot field — hover to expand dots with spring physics",
+    isRoot: true,
+  },
+  {
     slug: "example",
     title: "Example Demo",
     description: "GSAP + Framer Motion showcase",
