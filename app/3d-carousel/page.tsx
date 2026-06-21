@@ -394,17 +394,7 @@ export default function Carousel3D() {
           <div ref={mountRef} className={styles.mount} />
 
           <div className={styles.frameTop}>
-            <div className={styles.frameIcon}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/3d-carousel/noun-mushrooms-4644483.svg"
-                width={34}
-                height={34}
-                alt=""
-                style={{ opacity: 0.55 }}
-              />
-            </div>
-            <AnimatePresence mode="sync">
+<AnimatePresence mode="sync">
               <motion.div
                 key={`title-${active}`}
                 style={{ position: "absolute", bottom: 0, left: 0, right: 0, display: "flex", justifyContent: "center" }}

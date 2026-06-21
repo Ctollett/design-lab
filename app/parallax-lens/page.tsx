@@ -158,23 +158,47 @@ function BgTitle({ section }: { section: number }) {
     }
   });
 
-  const s = SECTIONS[displayed % SECTIONS.length];
+  const s    = SECTIONS[displayed % SECTIONS.length];
+  const labelSize  = viewport.width * 0.006;
+  const labelY     = viewport.width * 0.115;
+  const underlineW = labelSize * 6.2;
+  const underlineH = labelSize * 0.09;
+
   return (
-    <Text
-      ref={ref}
-      font="/fonts/PPEditorialOld-Ultralight.otf"
-      fontSize={viewport.width * 0.19}
-      color={s.textColor}
-      outlineColor={s.textColor}
-      letterSpacing={-0.04}
-      textAlign="center"
-      anchorX="center"
-      anchorY="middle"
-      position={[0, 0, 0]}
-      sdfGlyphSize={256}
-    >
-      {s.title}
-    </Text>
+    <>
+      <Text
+        font="/fonts/MDUITrial-Regular.otf"
+        fontSize={labelSize}
+        color={s.textColor}
+        letterSpacing={0.20}
+        textAlign="center"
+        anchorX="center"
+        anchorY="middle"
+        position={[0, labelY, 0]}
+        sdfGlyphSize={128}
+      >
+        BIOME
+      </Text>
+      <mesh position={[0, labelY - labelSize * 1.1, 0]}>
+        <planeGeometry args={[underlineW, underlineH]} />
+        <meshBasicMaterial color={s.textColor} />
+      </mesh>
+      <Text
+        ref={ref}
+        font="/fonts/PPEditorialOld-Ultralight.otf"
+        fontSize={viewport.width * 0.19}
+        color={s.textColor}
+        outlineColor={s.textColor}
+        letterSpacing={-0.04}
+        textAlign="center"
+        anchorX="center"
+        anchorY="middle"
+        position={[0, 0, 0]}
+        sdfGlyphSize={256}
+      >
+        {s.title}
+      </Text>
+    </>
   );
 }
 

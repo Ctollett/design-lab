@@ -36,6 +36,21 @@ const ppSupplyMono = localFont({
   variable: "--font-pp-supply-mono",
 });
 
+const ppEditorialOld = localFont({
+  src: "../fonts/PPEditorialOld-Regular.otf",
+  variable: "--font-pp-editorial-old",
+  weight: "400",
+});
+
+const neueMontreal = localFont({
+  src: [
+    { path: "../fonts/PPNeueMontreal-Book.otf", weight: "300", style: "normal" },
+    { path: "../fonts/PPNeueMontreal-Regular.otf", weight: "400", style: "normal" },
+    { path: "../fonts/PPNeueMontreal-Medium.otf", weight: "500", style: "normal" },
+  ],
+  variable: "--font-neue-montreal",
+});
+
 export const metadata: Metadata = {
   title: "Design Lab",
   description: "Interaction design experiments and demos",
@@ -55,7 +70,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${sohne.variable} ${canela.variable} ${mdui.variable} ${ppSupplyMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${sohne.variable} ${canela.variable} ${mdui.variable} ${ppSupplyMono.variable} ${ppEditorialOld.variable} ${neueMontreal.variable} antialiased`}
       >
         {children}
       </body>

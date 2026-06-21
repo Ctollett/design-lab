@@ -159,91 +159,48 @@ async function getFontUrl(): Promise<string> {
   throw new Error(`Font URL not found. Family: "${primaryFamily}"`);
 }
 
-// Parse the font with opentype.js, apply dlig GSUB substitutions manually,
-// then draw each glyph individually so the ligature is always honoured.
+// Render styled HTML to a canvas texture using the SVG foreignObject technique.
+// The browser handles font rendering, ligatures, and letter-spacing — no opentype.js needed.
 async function bakeTextToCanvas(fontUrl: string, symbolUrl: string, W: number, H: number, fontSize: number, dpr: number): Promise<HTMLCanvasElement> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const opentype = await import("opentype.js") as any;
-  const buf  = await (await fetch(fontUrl)).arrayBuffer();
-  const font = opentype.parse(buf);
-
-  // ── Apply dlig GSUB substitutions ────────────────────────────────
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const glyphs: any[] = font.stringToGlyphs("ssoma");
-  const gsub = font.tables.gsub;
-  const dligEntry = gsub?.features?.find((f: { tag: string }) => f.tag === "dlig");
-
-  if (dligEntry) {
-    for (const lookupIdx of dligEntry.feature.lookupListIndexes) {
-      const lookup = gsub.lookups[lookupIdx];
-      if (lookup.lookupType !== 4) continue; // only Ligature Substitution
-
-      for (const sub of lookup.subtables) {
-        let i = 0;
-        while (i < glyphs.length) {
-          const coverageIdx = (sub.coverage.glyphs ?? []).indexOf(glyphs[i].index);
-          if (coverageIdx < 0) { i++; continue; }
-
-          let substituted = false;
-          for (const lig of sub.ligatureSets[coverageIdx] ?? []) {
-            const { ligGlyph, components } = lig;
-            if (i + components.length >= glyphs.length) continue;
-            const match = components.every(
-              (c: number, j: number) => glyphs[i + 1 + j].index === c
-            );
-            if (match) {
-              glyphs[i] = font.glyphs.get(ligGlyph);
-              glyphs.splice(i + 1, components.length);
-              substituted = true;
-              break;
-            }
-          }
-          if (!substituted) i++;
-        }
-      }
-    }
+  // Fetch font and encode as base64 — required because foreignObject blocks external resource loads
+  const fontBuf = await (await fetch(fontUrl)).arrayBuffer();
+  const bytes = new Uint8Array(fontBuf);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 8192) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
   }
+  const fontDataUrl = `data:font/otf;base64,${btoa(binary)}`;
 
-  // ── Calculate layout ─────────────────────────────────────────────
-  const scale          = fontSize / font.unitsPerEm;
-  const letterSpacingPx = -0.04 * fontSize;
+  const fontFamily = ppRadioGrotesk.style.fontFamily.split(",")[0].trim().replace(/['"]/g, "");
 
-  let totalWidth = 0;
-  for (let i = 0; i < glyphs.length; i++) {
-    totalWidth += glyphs[i].advanceWidth * scale;
-    if (i < glyphs.length - 1) {
-      totalWidth += letterSpacingPx;
-      totalWidth += font.getKerningValue(glyphs[i], glyphs[i + 1]) * scale;
-    }
-  }
+  const html = `<div xmlns="http://www.w3.org/1999/xhtml" style="
+    width:${W}px;height:${H}px;margin:0;padding:0;box-sizing:border-box;
+    background:#1a1a1a;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'${fontFamily}';font-size:${fontSize}px;font-style:italic;font-weight:900;
+    color:#e8d9bf;letter-spacing:-0.04em;font-feature-settings:'dlig' 1;
+    -webkit-font-feature-settings:'dlig' 1;
+  ">ssoma</div>`;
 
-  const startX    = (W - totalWidth) / 2;
-  const ascenderPx  = font.ascender  * scale;
-  const descenderPx = font.descender * scale; // negative
-  const baselineY = H / 2 - (ascenderPx + descenderPx) / 2;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
+    <defs><style>
+      @font-face{font-family:'${fontFamily}';src:url('${fontDataUrl}') format('opentype');font-weight:900;font-style:italic;}
+    </style></defs>
+    <foreignObject x="0" y="0" width="${W}" height="${H}">${html}</foreignObject>
+  </svg>`;
 
-  // ── Draw ─────────────────────────────────────────────────────────
   const textCanvas = document.createElement("canvas");
   textCanvas.width  = Math.round(W * dpr);
   textCanvas.height = Math.round(H * dpr);
   const ctx = textCanvas.getContext("2d")!;
   ctx.scale(dpr, dpr);
-  ctx.fillStyle = "#1a1a1a";
-  ctx.fillRect(0, 0, W, H);
 
-  let x = startX;
-  for (let i = 0; i < glyphs.length; i++) {
-    const glyph = glyphs[i];
-    const glyphPath = glyph.getPath(x, baselineY, fontSize);
-    glyphPath.fill = "#e8d9bf";
-    glyphPath.draw(ctx);
-
-    let advance = glyph.advanceWidth * scale + letterSpacingPx;
-    if (i < glyphs.length - 1) {
-      advance += font.getKerningValue(glyph, glyphs[i + 1]) * scale;
-    }
-    x += advance;
-  }
+  await new Promise<void>((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => { ctx.drawImage(img, 0, 0, W, H); resolve(); };
+    img.onerror = reject;
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  });
 
   // ── Draw symbol above text ───────────────────────────────────────
   const S    = Math.min(W, H);

@@ -1,0 +1,228 @@
+.page {
+  width: 100vw;
+  height: 100vh;
+  background: #F5F5F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Panel ── */
+
+.panel {
+  background: #171717;
+  border-radius: 11px;
+  border: none;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.10),
+    0 8px 16px rgba(0, 0, 0, 0.09),
+    0 16px 24px rgba(0, 0, 0, 0.05),
+    inset 1px 0 2px rgba(255, 255, 247, 0.10),
+    inset 0 1px 2px rgba(255, 255, 247, 0.10);
+  overflow: hidden;
+}
+
+/* ── Header ── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 12px;
+  height: 32px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 247, 0.75);
+  gap: 8px;
+}
+
+.headerLabel {
+  font-family: var(--font-mdui), sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 247, 0.75);
+  letter-spacing: 0;
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: rgba(255, 255, 247, 0.6);
+}
+
+/* ── Controls ── */
+
+.controls {
+  padding: 0 12px;
+}
+
+.controlsDivider {
+  height: 1px;
+  background: rgba(255, 255, 247, 0.08);
+  margin-bottom: 8px;
+}
+
+/* ── Toolbar tools ── */
+
+.toolbarTools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.toolBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mdui), sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 247, 0.28);
+  transition: color 0.12s;
+  white-space: nowrap;
+}
+
+.toolBtn:hover {
+  color: rgba(255, 255, 247, 0.55);
+}
+
+.toolBtnActive {
+  color: rgba(255, 255, 247, 0.85) !important;
+}
+
+/* ── Channel selector ── */
+
+.channelRow {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.channelBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 247, 0.25);
+  transition: color 0.12s;
+}
+
+.channelBtn:hover {
+  color: rgba(255, 255, 247, 0.5);
+}
+
+.channelBtnActive {
+  color: white;
+}
+
+/* ── Sliders ── */
+
+.sliderPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sliderRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sliderMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.sliderLabel {
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 247, 0.25);
+}
+
+.sliderValue {
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 247, 0.4);
+}
+
+.sliderTrack {
+  position: relative;
+  height: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.sliderFill {
+  position: absolute;
+  left: 0;
+  height: 1.5px;
+  background: rgba(255, 255, 247, 0.35);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.sliderThumb {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 247, 0.85);
+  transform: translateX(-50%);
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* A full-width track background */
+.sliderTrack::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: rgba(255, 255, 247, 0.08);
+  border-radius: 1px;
+}
+
+/* ── Curves editor ── */
+
+.curveSvg {
+  display: block;
+  cursor: crosshair;
+  border-radius: 4px;
+  background: rgba(255, 255, 247, 0.03);
+  border: 0.5px solid rgba(255, 255, 247, 0.08);
+  overflow: hidden;
+}
+
+/* ── Corner label ── */
+
+.cornerLabel {
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9A9A9A;
+  line-height: 1.7;
+  text-align: right;
+  pointer-events: none;
+}

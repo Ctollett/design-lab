@@ -2,49 +2,123 @@
   "repo": "Ctollett/design-lab",
   "labs": [
     {
-      "slug": "spacial-filter",
-      "title": "Spacial Filter",
-      "description": "A spacial filtering interaction",
-      "date": "2026-01-01",
-      "codeFile": "app/spacial-filter/page.tsx",
-      "previewVideo": "/previews/spacial-filter.mp4?v=3",
-      "posterImage": "/posterimages/spacial-filter.jpg?v=3"
+      "slug": "3d-carousel",
+      "title": "3D Carousel",
+      "description": "Iridescent B&W film carousel with wave physics",
+      "date": "2026-05-28",
+      "codeFile": "app/3d-carousel/page.tsx"
     },
     {
-      "slug": "adaptive-knob",
-      "title": "Adaptive Knob",
-      "description": "An adaptive knob control",
-      "date": "2026-01-01",
-      "codeFile": "app/adaptive-knob/page.tsx",
-      "previewVideo": "/previews/adaptive-knob.mp4?v=3",
-      "posterImage": "/posterimages/adaptive-knob.jpg?v=3"
+      "slug": "card-lift",
+      "title": "Card Lift",
+      "description": "Infinite scroll carousel with Three.js cloth physics",
+      "date": "2026-06-11",
+      "codeFile": "app/card-lift/page.tsx"
     },
     {
-      "slug": "inline-auto-suggest",
-      "title": "Inline Auto Suggest",
-      "description": "Inline auto-suggestion interaction",
-      "date": "2026-01-01",
-      "codeFile": "app/inline-auto-suggest/page.tsx",
-      "previewVideo": "/previews/inline-auto-suggest.mp4",
-      "posterImage": "/posterimages/inline-auto-suggest.jpg"
+      "slug": "card-shelf",
+      "title": "Card Shelf",
+      "description": "Portrait cards scrolling horizontally with lava lamp blob reveal",
+      "date": "2026-05-12",
+      "codeFile": "app/card-shelf/page.tsx"
     },
     {
-      "slug": "semantic-image-hover",
-      "title": "Semantic Image Hover",
-      "description": "AI-powered product discovery on hover",
-      "date": "2026-01-01",
-      "codeFile": "app/semantic-image-hover/page.tsx",
-      "previewVideo": "/previews/semantic-image-hover.mp4",
-      "posterImage": "/posterimages/semantic-image-hover.jpg"
+      "slug": "command-menu",
+      "title": "Command Menu",
+      "description": "Search command palette with morph transition and spring highlight",
+      "date": "2026-06-21",
+      "codeFile": "app/command-menu/page.tsx"
     },
     {
-      "slug": "progressive-confidence-agent-tasks",
-      "title": "Progressive Agent Tasks",
-      "description": "Confidence-based progressive task completion",
-      "date": "2026-01-01",
-      "codeFile": "app/progressive-confidence-agent-tasks/page.tsx",
-      "previewVideo": "/previews/progressive-agent-task.mp4",
-      "posterImage": "/posterimages/progressive-agent-task.jpg"
+      "slug": "dot-grid",
+      "title": "Dot Grid",
+      "description": "Proximity dot field — hover to expand dots with spring physics",
+      "date": "2026-06-18",
+      "codeFile": "app/dot-grid/page.tsx"
+    },
+    {
+      "slug": "dropdown-menu",
+      "title": "Dropdown Menu",
+      "description": "Polished action menu with spring hover states",
+      "date": "2026-06-21",
+      "codeFile": "app/dropdown-menu/page.tsx"
+    },
+    {
+      "slug": "font-flare",
+      "title": "Font Flare",
+      "description": "WebGL liquid ripple with manual ligature rendering",
+      "date": "2026-05-13",
+      "codeFile": "app/font-flare/page.tsx"
+    },
+    {
+      "slug": "image-cube",
+      "title": "Image Cube",
+      "description": "3D architecture gallery cube with scroll, drag, and category flip",
+      "date": "2026-06-16",
+      "codeFile": "app/image-cube/page.tsx"
+    },
+    {
+      "slug": "image-filter",
+      "title": "Image Filter",
+      "description": "Adjust button that expands into a filter panel with spring sliders",
+      "date": "2026-06-21",
+      "codeFile": "app/image-filter/page.tsx"
+    },
+    {
+      "slug": "infinite-canvas",
+      "title": "Infinite Canvas",
+      "description": "Three.js depth grid with waterbed squish physics",
+      "date": "2026-05-23",
+      "codeFile": "app/infinite-canvas/page.tsx"
+    },
+    {
+      "slug": "marginalia",
+      "title": "Marginalia",
+      "description": "Citation reader with drag-to-flip card stack",
+      "date": "2026-05-23",
+      "codeFile": "app/marginalia/page.tsx"
+    },
+    {
+      "slug": "parallax-lens",
+      "title": "Parallax Lens",
+      "description": "Biome scroll with refracted glass orbs",
+      "date": "2026-05-18",
+      "codeFile": "app/parallax-lens/page.tsx"
+    },
+    {
+      "slug": "pull-up-footer",
+      "title": "Pull-Up Footer",
+      "description": "Scroll-reveal footer with film grain and SVG morph",
+      "date": "2026-05-30",
+      "codeFile": "app/pull-up-footer/page.tsx"
+    },
+    {
+      "slug": "ruun-showcase",
+      "title": "Ruun Showcase",
+      "description": "Music player with spring-physics SVG morphing",
+      "date": "2026-05-23",
+      "codeFile": "app/ruun-showcase/page.tsx"
+    },
+    {
+      "slug": "single-card-image-focus",
+      "title": "Single Card",
+      "description": "WebGL lens refraction carousel with single card focus",
+      "date": "2026-05-11",
+      "codeFile": "app/single-card-image-focus/page.tsx"
+    },
+    {
+      "slug": "spatial-scrubber",
+      "title": "Spatial Scrubber",
+      "description": "Distance-based audio scrub with liquid blob handle",
+      "date": "2026-05-15",
+      "codeFile": "app/spatial-scrubber/page.tsx"
+    },
+    {
+      "slug": "velocity-stepper",
+      "title": "Velocity Stepper",
+      "description": "Drag to scrub a value — drag speed controls increment size",
+      "date": "2026-06-21",
+      "codeFile": "app/velocity-stepper/page.tsx"
     }
   ]
 }

@@ -1,0 +1,186 @@
+.page {
+  width: 100vw;
+  height: 100vh;
+  background: #111110;
+  background-image: radial-gradient(circle, rgba(255, 255, 247, 0.055) 1px, transparent 1px);
+  background-size: 24px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Menu shell ── */
+
+.menu {
+  width: 300px;
+  background: #1C1C1B;
+  border: 1px solid rgba(255, 255, 247, 0.07);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Search / hint row ── */
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  overflow: hidden;
+}
+
+.hintRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 36px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: text;
+}
+
+.hintText {
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 247, 0.2);
+  letter-spacing: 0.02em;
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 247, 0.85);
+  letter-spacing: 0.02em;
+  caret-color: rgba(255, 255, 247, 0.6);
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 247, 0.2);
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.clearBtn:hover {
+  opacity: 1;
+}
+
+.menuDivider {
+  height: 1px;
+  background: rgba(255, 255, 247, 0.06);
+  margin: 0;
+}
+
+/* ── List ── */
+
+.list {
+  padding: 6px;
+  position: relative;
+}
+
+/* Sliding highlight */
+.highlight {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 30px;
+  background: rgba(255, 255, 247, 0.07);
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Items ── */
+
+.item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 6px;
+  cursor: default;
+}
+
+.itemLabel {
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 247, 0.75);
+  letter-spacing: 0.02em;
+}
+
+.itemDanger .itemLabel {
+  color: rgba(255, 100, 80, 0.8);
+}
+
+.shortcut {
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 247, 0.22);
+}
+
+.itemDivider {
+  height: 1px;
+  background: rgba(255, 255, 247, 0.06);
+  margin: 4px 2px;
+}
+
+/* ── Category labels ── */
+
+.categoryLabel {
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 247, 0.2);
+  padding: 6px 8px 2px;
+}
+
+/* ── Empty state ── */
+
+.empty {
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 247, 0.2);
+  letter-spacing: 0.02em;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+/* ── Corner label ── */
+
+.cornerLabel {
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  font-family: var(--font-pp-supply-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 247, 0.3);
+  line-height: 1.7;
+  text-align: right;
+  pointer-events: none;
+}
