@@ -98,6 +98,24 @@ const demos = [
     isRoot: true,
   },
   {
+    slug: "dropdown",
+    title: "Dropdown",
+    description: "Document menu with a spring-tracked highlight that travels between rows",
+    isRoot: true,
+  },
+  {
+    slug: "tab-menu",
+    title: "Tab Menu",
+    description: "Tabbed panel with a selection pill that springs between tabs",
+    isRoot: true,
+  },
+  {
+    slug: "arc-gallery",
+    title: "Arc Gallery",
+    description: "Overlapping plates form an arch — move the pointer to traverse it",
+    isRoot: true,
+  },
+  {
     slug: "example",
     title: "Example Demo",
     description: "GSAP + Framer Motion showcase",
@@ -114,7 +132,7 @@ export default function Home() {
     <div className="min-h-screen bg-black p-8 md:p-16">
       <div className="mx-auto max-w-4xl">
         <header className="mb-16">
-          <h1 className="mb-4 text-4xl font-semibold text-white">
+          <h1 className="mb-4 text-6xl font-semibold tracking-tight text-white md:text-7xl">
             Design Lab
           </h1>
           <p className="text-lg text-zinc-400">
